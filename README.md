@@ -8,7 +8,7 @@ A PostCSS plugin that takes existing CSS files and splits out the annotated crit
 
 ## What does it NOT do?
 * It does not automatically detect which rules should be considered critical. You have to tag them yourself.
-* It does not change any paths in the critical ruleset. If you want are to include the critical-CSS file in the head of your site, you WILL need to run another PostCSS to adapt the paths.
+* It does not change any paths in the critical ruleset. If you want are to include the critical-CSS file in the head of your site, you WILL need to run another PostCSS to adapt the paths. Check out this example for more info: https://github.com/mrnocreativity/critical-css-example
 * Remove the tag-comment you added yourself. This can be removed in a later stage with other capable and proven PostCSS plugins
 
 ## Why should I tag my CSS rules myself?
