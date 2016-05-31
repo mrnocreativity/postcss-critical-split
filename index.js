@@ -56,7 +56,7 @@ function processRule(criticalCss, pattern, rule) {
 		} else {
 			var mediaq_in_newcss = false;
 
-			criticalCss.eachAtRule('media', function(mediaq) {
+			criticalCss.walkAtRules('media', function(mediaq) {
 				if (mediaq.params == rule.parent.params) {
 					rule.remove();
 					mediaq.append(rule);
@@ -67,7 +67,7 @@ function processRule(criticalCss, pattern, rule) {
 
 			if (!mediaq_in_newcss) {
 				var parent = rule.parent.clone();
-				parent.eachRule(function(r) { r.remove(); });
+				parent.walkRules(function(r) { r.remove(); });
 				rule.remove();
 				parent.append(rule);
 				criticalCss.append(parent);
