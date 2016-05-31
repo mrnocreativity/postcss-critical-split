@@ -34,8 +34,8 @@ function CriticalSplit(options) {
 			relativeDirectory = path.dirname(relativePath),
 			criticalFilename = createCriticalFilename(nonCriticalFilename, filenameSuffix);
 
-		originalCss.walkRules(processRule.bind(null, criticalCss));
-		originalCss.walkAtRules(processRule.bind(null, criticalCss));
+		originalCss.walkRules(processRule.bind(null, criticalCss, pattern));
+		originalCss.walkAtRules(processRule.bind(null, criticalCss, pattern));
 
 		fs.writeFileSync(path.join(relativeDirectory, nonCriticalFilename), originalCss.toResult());
 
@@ -45,7 +45,7 @@ function CriticalSplit(options) {
 	};
 }
 
-function processRule(criticalCss, rule) {
+function processRule(criticalCss, pattern, rule) {
 	if (rule.toString().match(pattern)) {
 		console.log('matching:', rule.parent.name);
 
