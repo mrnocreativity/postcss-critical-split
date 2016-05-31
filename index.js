@@ -50,8 +50,6 @@ function CriticalSplit(options) {
 
 function processRule(criticalCss, pattern, rule) {
 	if (rule.toString().match(pattern)) {
-		console.log('matching:', rule.parent.name);
-
 		if (rule.parent.name != 'media') {
 			rule.remove();
 			criticalCss.append(rule);
