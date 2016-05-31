@@ -14,14 +14,14 @@ function createCriticalFilename(filename, suffix) {
 	return result;
 }
 
-function Split(opts) {
-	var opts = opts || {},
+function CriticalSplit(options) {
+	var options = options || {},
 		filenameSuffix = '-critical',
 		filename = '';
 
-	pattern = opts.pattern || /FOLD/;
+	pattern = options.pattern || /CRITICAL/;
 
-	if (typeof opts.suffix !== 'undefined') {
+	if (typeof options.suffix !== 'undefined') {
 		filenameSuffix = opts.suffix;
 	}
 
@@ -75,4 +75,4 @@ function processRule(criticalCss, rule) {
 	}
 }
 
-module.exports = postcss.plugin('postcss-split', Split);
+module.exports = postcss.plugin('postcss-critical-split', CriticalSplit);
