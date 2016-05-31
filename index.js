@@ -17,9 +17,12 @@ function createCriticalFilename(filename, suffix) {
 function CriticalSplit(options) {
 	var options = options || {},
 		filenameSuffix = '-critical',
-		filename = '';
+		filename = '',
+		pattern = /CRITICAL/;
 
-	pattern = options.pattern || /CRITICAL/;
+	if (typeof options.pattern !== 'undefined') {
+		pattern = opts.pattern;
+	}
 
 	if (typeof options.suffix !== 'undefined') {
 		filenameSuffix = opts.suffix;
