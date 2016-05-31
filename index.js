@@ -21,11 +21,11 @@ function CriticalSplit(options) {
 		pattern = /CRITICAL/;
 
 	if (typeof options.pattern !== 'undefined') {
-		pattern = opts.pattern;
+		pattern = options.pattern;
 	}
 
 	if (typeof options.suffix !== 'undefined') {
-		filenameSuffix = opts.suffix;
+		filenameSuffix = options.suffix;
 	}
 
 	return function(originalCss, result) {
