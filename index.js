@@ -37,8 +37,8 @@ function CriticalSplit(options) {
 			relativeDirectory = path.dirname(relativePath),
 			criticalFilename = createCriticalFilename(nonCriticalFilename, filenameSuffix);
 
-		originalCss.walkRules(processRule.bind(null, criticalCss, pattern));
-		originalCss.walkAtRules(processRule.bind(null, criticalCss, pattern));
+		originalCss.walkRules(processRule.bind(null, criticalCss, pattern)); // all regular css rules
+		originalCss.walkAtRules(processRule.bind(null, criticalCss, pattern)); // all @-rules like '@media' and '@font-face'
 
 		fs.writeFileSync(path.join(relativeDirectory, nonCriticalFilename), originalCss.toResult());
 
@@ -49,29 +49,19 @@ function CriticalSplit(options) {
 }
 
 function processRule(criticalCss, pattern, rule) {
+	var parent = null;
+
 	if (rule.toString().match(pattern)) {
 		if (rule.parent.name != 'media') {
 			rule.remove();
 			criticalCss.append(rule);
 		} else {
-			var mediaq_in_newcss = false;
-
-			criticalCss.walkAtRules('media', function(mediaq) {
-				if (mediaq.params == rule.parent.params) {
-					rule.remove();
-					mediaq.append(rule);
-					mediaq_in_newcss = true;
-					return false;
-				}
-			});
-
-			if (!mediaq_in_newcss) {
-				var parent = rule.parent.clone();
-				parent.walkRules(function(r) { r.remove(); });
-				rule.remove();
-				parent.append(rule);
-				criticalCss.append(parent);
-			}
+			// the previous version of this plugin grouped media queries but the problem with that was that the order would change. That's not desirable.
+			parent = rule.parent.clone();
+			parent.walkRules(function(r) { r.remove(); });
+			rule.remove();
+			parent.append(rule);
+			criticalCss.append(parent);
 		}
 	}
 }
