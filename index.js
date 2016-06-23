@@ -6,7 +6,10 @@ var path = require('path'),
 		'start': 'critical:start',
 		'end': 'critical:end'
 	},
-	criticalActive = false;
+	criticalActive = false,
+	latestRule = null,
+	latestRuleAdded = false,
+	temp = null;
 
 function createCriticalFilename(filename, suffix) {
 	var position = filename.lastIndexOf('.css'),
@@ -17,6 +20,12 @@ function createCriticalFilename(filename, suffix) {
 	result += '.css';
 
 	return result;
+}
+
+function clearRule(rule) {
+	rule.walk(function(nestedRule) {
+		nestedRule.remove();
+	});
 }
 
 function CriticalSplit(options) {
@@ -48,24 +57,37 @@ function CriticalSplit(options) {
 }
 
 function processRule(parentRule, rule) {
-	var newRule = null;
+	var newRule = null,
+		allowInherit = true;
 
 	if (rule.type === 'comment' && rule.text === critical.start) {
 		criticalActive = true;
+		latestRuleAdded = false;
+
+		if (rule.parent.type === 'rule') {
+			latestRule = rule.parent.clone();
+			clearRule(latestRule);
+			//console.log('newline', latestRule.parent);
+		}
+
 		rule.remove();
 	} else if (rule.type === 'comment' && rule.text === critical.end) {
 		criticalActive = false;
+		latestRule = null;
 		rule.remove();
 	} else if(criticalActive === true) {
 		switch (rule.type) {
 			case 'atrule':
 			case 'rule':
+				if (latestRuleAdded === true && latestRule !== null) {
+					parentRule = latestRule;
+					console.log('captured the latestRule');
+				}
+
 				newRule = rule.clone();
 				parentRule.append(newRule);
 
-				newRule.walk(function(nestedRule) {
-					nestedRule.remove();
-				});
+				clearRule(newRule);
 
 				//to understand recursion you first need to understand recursion
 				rule.walk(processRule.bind(null, newRule));
@@ -73,6 +95,33 @@ function processRule(parentRule, rule) {
 				break;
 			case 'comment':
 			case 'decl':
+				if (latestRule !== null) {
+					// console.log('rule.parent:', rule.parent.selector);
+					// console.log('inherited parent:', parentRule.selector);
+					// console.log('latest:', latestRule.selector);
+
+					if (typeof parentRule.selector !== 'undefined' && parentRule.selector === rule.parent.selector){
+						console.log('!! !! !! mismatch detected');
+						allowInherit = false;
+					} else {
+						allowInherit = true;
+					}
+
+					console.log('------------------');
+					//latestRule = null;
+				}
+
+				if (allowInherit === true && latestRule !== null) {
+					if (latestRuleAdded === false) {
+						//console.log('need parent rule');
+						parentRule.append(latestRule);
+						parentRule = latestRule;
+						latestRuleAdded = true;
+					} else {
+						parentRule = latestRule;
+					}
+				}
+
 				parentRule.raws.semicolon = true;
 				parentRule.append(rule);
 				break;
