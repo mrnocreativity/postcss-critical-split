@@ -1,7 +1,12 @@
 'use strict';
 var path = require('path'),
 	fs = require('fs'),
-	postcss = require('postcss');
+	postcss = require('postcss'),
+	critical = {
+		'start': 'critical:start',
+		'end': 'critical:end'
+	},
+	criticalActive = false;
 
 function createCriticalFilename(filename, suffix) {
 	var position = filename.lastIndexOf('.css'),
@@ -17,12 +22,7 @@ function createCriticalFilename(filename, suffix) {
 function CriticalSplit(options) {
 	var options = options || {},
 		filenameSuffix = '-critical',
-		filename = '',
-		pattern = /CRITICAL/;
-
-	if (typeof options.pattern !== 'undefined') {
-		pattern = options.pattern;
-	}
+		filename = '';
 
 	if (typeof options.suffix !== 'undefined') {
 		filenameSuffix = options.suffix;
@@ -37,8 +37,7 @@ function CriticalSplit(options) {
 			relativeDirectory = path.dirname(relativePath),
 			criticalFilename = createCriticalFilename(nonCriticalFilename, filenameSuffix);
 
-		originalCss.walkRules(processRule.bind(null, criticalCss, pattern)); // all regular css rules
-		originalCss.walkAtRules(processRule.bind(null, criticalCss, pattern)); // all @-rules like '@media' and '@font-face'
+		originalCss.walk(processRule.bind(null, criticalCss)); // all rules
 
 		fs.writeFileSync(path.join(relativeDirectory, nonCriticalFilename), originalCss.toResult());
 
@@ -48,21 +47,41 @@ function CriticalSplit(options) {
 	};
 }
 
-function processRule(criticalCss, pattern, rule) {
-	var parent = null;
+function processRule(parentRule, rule) {
+	var newRule = null;
 
-	if (rule.toString().match(pattern)) {
-		if (rule.parent.name != 'media') {
-			rule.remove();
-			criticalCss.append(rule);
-		} else {
-			// the previous version of this plugin grouped media queries but the problem with that was that the order would change. That's not desirable.
-			parent = rule.parent.clone();
-			parent.walkRules(function(r) { r.remove(); });
-			rule.remove();
-			parent.append(rule);
-			criticalCss.append(parent);
+	if (rule.type === 'comment' && rule.text === critical.start) {
+		criticalActive = true;
+		rule.remove();
+	} else if (rule.type === 'comment' && rule.text === critical.end) {
+		criticalActive = false;
+		rule.remove();
+	} else if(criticalActive === true) {
+		switch (rule.type) {
+			case 'atrule':
+			case 'rule':
+				newRule = rule.clone();
+				parentRule.append(newRule);
+
+				newRule.walk(function(nestedRule) {
+					nestedRule.remove();
+				});
+
+				//to understand recursion you first need to understand recursion
+				rule.walk(processRule.bind(null, newRule));
+
+				break;
+			case 'comment':
+			case 'decl':
+				parentRule.raws.semicolon = true;
+				parentRule.append(rule);
+				break;
+			default:
+				console.log('missed one!!', rule.type);
+				break;
 		}
+
+		rule.remove();
 	}
 }
 
