@@ -39,11 +39,12 @@ This is the suffix that will be added to the generated critical-CSS file.
 
 ```css
 /* before: main.css */
+/* critical:start */
 header{
-	/*CRITICAL*/
 	background-color: #1d1d1d;
 	font-size: 2em;
 }
+/* critical:end */
 
 footer{
 	background-color: #1d1d1d;
@@ -70,7 +71,6 @@ footer{
 ```css
 /* after: main.head.css */
 header{
-	/*CRITICAL*/
 	background-color: #1d1d1d;
 	font-size: 2em;
 }
@@ -84,11 +84,12 @@ This is the pattern that is matched in every rule/atRule in the original CSS fil
 
 ```css
 /* before: main.css */
+/* critical:start */
 header{
-	/*FOLD*/
 	background-color: #1d1d1d;
 	font-size: 2em;
 }
+/* critical:end */
 
 footer{
 	background-color: #1d1d1d;
@@ -115,7 +116,6 @@ footer{
 ```css
 /* after: main-critical.css */
 header{
-	/*FOLD*/
 	background-color: #1d1d1d;
 	font-size: 2em;
 }
