@@ -9,8 +9,9 @@ var path = require('path'),
 	numberOfSameChecks = 0,
 	numberOfSelectorSearches = 0,
 	defaults = {
-		'start': 'critical:start',
-		'end': 'critical:end',
+		'startTag': 'critical:start',
+		'endTag': 'critical:end',
+		'blockTag': 'critical',
 		'suffix': '-critical'
 	};
 
@@ -35,6 +36,9 @@ function performTransform(originalCss, result) {
 
 	getAllCriticals(originalCss, criticalCss);
 
+	cleanUp(originalCss);
+	cleanUp(criticalCss);
+
 	// console.log('numberOfLinesInOriginalCss:', numberOfLinesInOriginalCss);
 	// console.log('numberOfSameChecks:', numberOfSameChecks);
 	// console.log('numberOfSelectorSearches:', numberOfSelectorSearches);
@@ -46,13 +50,25 @@ function performTransform(originalCss, result) {
 	}
 }
 
+function cleanUp(cssRoot) {
+
+	var handleBlock = function(block) {
+		if (block.nodes.length === 0) {
+			block.remove();
+		}
+	};
+
+	cssRoot.walkRules(handleBlock);
+	cssRoot.walkAtRules(handleBlock);
+}
+
 function applyUserOptions(newOptions) {
 	var errorMessage ='',
 		result = true;
 
 	userOptions = merge(defaults, newOptions);
 
-	if (userOptions.start === userOptions.end) {
+	if (userOptions.startTag === userOptions.endTag) {
 		errorMessage += '\n\n';
 		errorMessage += 'ERROR :: PostCSS Plugin: Critical Split\n';
 		errorMessage += '.Critical CSS start and end tag must not be the same. \n';
@@ -93,18 +109,52 @@ function getAllCriticals(originalCss, criticalCss) {
 
 		numberOfLinesInOriginalCss++;
 
-		if (line.type === 'comment' && line.text === userOptions.start) {
+		if (line.type === 'comment' && line.text === userOptions.blockTag) {
+			appendFullBlock(criticalCss,line);
+			line.remove(); // remove tagging comment
+		} else if (line.type === 'comment' && line.text === userOptions.startTag) {
 			criticalActive = true;
-			// line.remove(); // remove unnecessary comment
-		} else if (line.type === 'comment' && line.text === userOptions.end) {
+			line.remove(); // remove tagging comment
+		} else if (line.type === 'comment' && line.text === userOptions.endTag) {
 			criticalActive = false
 			currentLevel = null;
-			// line.remove(); // remove unnecessary comment
+			line.remove(); // remove tagging comment
 		} else if (criticalActive === true && (line.type === 'decl' || line.type === 'comment')) {
 			appendDeclaration(criticalCss, line);
-			line.remove();
+			line.remove(); // remove line from originalCss as it is now alive in criticalCss
 		}
 	});
+}
+
+function getBlockFromTriggerTag(line) {
+	var result = null;
+
+	if (line.parent.type !== 'root') {
+		result = line.parent;
+	}
+
+	return result;
+}
+
+function appendFullBlock(criticalCss, line) {
+	var currentLevel = null,
+		parents = null,
+		block =  getBlockFromTriggerTag(line);
+
+	if (block !== null) {
+		parents = getParents(line);
+		currentLevel = prepareSelectors(criticalCss, parents);
+
+		if (currentLevel.type === 'rule') {
+			block.walk(function(line) {
+				if (!(line.type === 'comment' && line.text === userOptions.blockTag)){
+					// we don't want to add the blockTag comment back; skip that
+					currentLevel.append(line);
+					line.remove();
+				}
+			});
+		}
+	}
 }
 
 function appendDeclaration(criticalCss, line) {
