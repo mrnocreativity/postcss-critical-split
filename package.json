@@ -13,6 +13,7 @@
   "author": "Ronny Welter",
   "license": "MIT",
   "dependencies": {
+    "merge": "^1.2.0",
     "postcss": "^5.0.14"
   }
 }
