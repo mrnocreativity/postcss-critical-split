@@ -1,5 +1,5 @@
 # postcss-critical-split
-A PostCSS plugin that takes existing CSS files and splits out the annotated critical styles into a seperate file, inspired by  https://github.com/wladston/postcss-split
+A PostCSS plugin that takes existing CSS files and splits out the annotated critical styles into a seperate file, inspired by https://github.com/wladston/postcss-split
 
 ## What exactly does this plugin do?
 * It goes through the given CSS files and finds all rules that have a CSS comment in them that indicates they are critical. These rules are then moved out of the original file and saved into a separate critical-CSS file.
@@ -18,7 +18,7 @@ For larger scale projects, automating critical-CSS detection is complicated, unp
 If you later decide to no longer support this workflow or switch to a different one (with different tools), the critical-comments are standard CSS and will not break your project.
 
 ## Why split the files into 2 seperate files? Why not immediately move it into HTML?
-The idea here is that we want to generate our entire CSS file first and then split out what is considered 'critical'. 
+The idea here is that we want to generate our entire CSS file first and then split out what is considered 'critical'.
 Injecting it into an HTML file right away would be fairly dictative of your workflow. This allows for more flexible setups.
 
 For example: during development you could `<link>` the critical-CSS file, while rendering it out into the HTML templates once you get ready for production (remember to adjust the URL's in the CSS file for the changed context of the CSS execution).
