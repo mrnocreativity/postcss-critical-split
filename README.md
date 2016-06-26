@@ -1,6 +1,8 @@
 # postcss-critical-split
 A PostCSS plugin that takes existing CSS files and splits out the annotated critical styles into a seperate file, inspired by https://github.com/wladston/postcss-split
 
+![A PostCSS plugin to split your Critical CSS from the rest](https://raw.githubusercontent.com/mrnocreativity/postcss-critical-split/master/critical-split.gif)
+
 ## What exactly does this plugin do?
 * It goes through the given CSS files and finds all rules that have a CSS comment in them that indicates they are critical. These rules are then moved out of the original file and saved into a separate critical-CSS file.
 * It goes through the given CSS files and finds critcal-start and -end tags. These CSS rules between these 2 markers are then moved out of the original file and saved into a separate critical-CSS file.
