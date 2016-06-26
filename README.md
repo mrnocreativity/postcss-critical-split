@@ -158,7 +158,7 @@ This is the suffix that will be added to the generated critical-CSS file.
 
 ```javascript
 /* gulpfile */
-gulp.src(['**/*.css','!**/*-critical.css'])
+gulp.src(['**/*.css','!**/*.head.css'])
 	.pipe(postcss(require('postcss-critical-split')({
 		'suffix':'.head'
 	}));
