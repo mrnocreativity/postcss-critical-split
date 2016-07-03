@@ -53,7 +53,7 @@ function performTransform(originalCss, result) {
 function cleanUp(cssRoot) {
 
 	var handleBlock = function(block) {
-		if (block.nodes.length === 0) {
+		if (block.nodes && block.nodes.length === 0) {
 			block.remove();
 		}
 	};
