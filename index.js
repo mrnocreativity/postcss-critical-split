@@ -1,18 +1,23 @@
 'use strict';
-var path = require('path'),
+
+var output_types = {
+		'INPUT_CSS': 'input',
+		'CRITICAL_CSS': 'critical',
+		'REST_CSS': 'rest'
+	},
+	path = require('path'),
 	fs = require('fs'),
 	merge = require('merge'),
 	postcss = require('postcss'),
 	userOptions = null,
 	criticalActive = false,
-	numberOfLinesInOriginalCss = 0,
-	numberOfSameChecks = 0,
-	numberOfSelectorSearches = 0,
 	defaults = {
 		'startTag': 'critical:start',
 		'endTag': 'critical:end',
 		'blockTag': 'critical',
-		'suffix': '-critical'
+		'suffix': '-critical',
+		'output': output_types.INPUT_CSS,
+		'save': false
 	};
 
 function CriticalSplit(newOptions) {
@@ -25,28 +30,45 @@ function CriticalSplit(newOptions) {
 	};
 }
 
-function performTransform(originalCss, result) {
-	var criticalCss = postcss.root(),
-		absolutePath = originalCss.source.input.file,
-		cwd = process.cwd(),
-		relativePath = path.relative(cwd, absolutePath),
-		nonCriticalFilename = path.basename(relativePath),
-		relativeDirectory = path.dirname(relativePath),
-		criticalFilename = createCriticalFilename(nonCriticalFilename);
+function performTransform(inputCss, result) {
+	var originalCss = inputCss.clone(true),
+		criticalCss = postcss.root(),
+		absolutePath = null,
+		directoryPath = null,
+		nonCriticalFilename = null,
+		criticalFilename = null;
 
 	getAllCriticals(originalCss, criticalCss);
 
 	cleanUp(originalCss);
 	cleanUp(criticalCss);
 
-	// console.log('numberOfLinesInOriginalCss:', numberOfLinesInOriginalCss);
-	// console.log('numberOfSameChecks:', numberOfSameChecks);
-	// console.log('numberOfSelectorSearches:', numberOfSelectorSearches);
+	if (userOptions.save === true) {
+		absolutePath = originalCss.source.input.file,
+		directoryPath = path.dirname(absolutePath),
+		nonCriticalFilename = path.basename(absolutePath),
+		criticalFilename = createCriticalFilename(nonCriticalFilename);
 
-	fs.writeFileSync(path.join(relativeDirectory, nonCriticalFilename), originalCss.toResult());
+		saveCssFile(path.join(directoryPath, nonCriticalFilename), originalCss);
+		saveCssFile(path.join(directoryPath, criticalFilename), criticalCss);
+	}
 
-	if (criticalCss.nodes.length > 0) {
-		fs.writeFileSync(path.join(relativeDirectory, criticalFilename), criticalCss.toResult());
+	switch(userOptions.output) {
+		case output_types.INPUT_CSS:
+			result.root = inputCss;
+			break;
+		case output_types.CRITICAL_CSS:
+			result.root = criticalCss;
+			break;
+		case output_types.REST_CSS:
+			result.root = originalCss;
+			break;
+	}
+}
+
+function saveCssFile(filepath, cssRoot) {
+	if (cssRoot.nodes.length > 0) {
+		fs.writeFileSync(filepath, cssRoot.toResult());
 	}
 }
 
@@ -60,6 +82,8 @@ function cleanUp(cssRoot) {
 
 	cssRoot.walkRules(handleBlock);
 	cssRoot.walkAtRules(handleBlock);
+
+	cssRoot.raws.semicolon = true;
 }
 
 function applyUserOptions(newOptions) {
@@ -99,6 +123,7 @@ function clearLevel(level) {
 	level.walk(function(nestedRule) {
 		nestedRule.remove();
 	});
+	level.raws.semicolon = true;
 }
 
 function getAllCriticals(originalCss, criticalCss) {
@@ -107,7 +132,7 @@ function getAllCriticals(originalCss, criticalCss) {
 	originalCss.walk(function(line) {
 		var temp = null;
 
-		numberOfLinesInOriginalCss++;
+		line.parent.raws.semicolon = true;
 
 		if (line.type === 'comment' && line.text === userOptions.blockTag) {
 			appendFullBlock(criticalCss,line);
@@ -124,6 +149,8 @@ function getAllCriticals(originalCss, criticalCss) {
 			line.remove(); // remove line from originalCss as it is now alive in criticalCss
 		}
 	});
+
+	originalCss.raws.semicolon = true;
 }
 
 function getBlockFromTriggerTag(line) {
@@ -151,6 +178,7 @@ function appendFullBlock(criticalCss, line) {
 					// we don't want to add the blockTag comment back; skip that
 					currentLevel.append(line);
 					line.remove();
+					currentLevel.raws.semicolon = true;
 				}
 			});
 		}
@@ -162,7 +190,7 @@ function appendDeclaration(criticalCss, line) {
 		currentLevel = prepareSelectors(criticalCss, parents);
 
 	currentLevel.append(line);
-	currentLevel.raws.semicolon = true; // enforce last rule semicolon; just in case of some weird last-line comments...
+	currentLevel.raws.semicolon = true;
 }
 
 function prepareSelectors(criticalCss, selectorLevels) {
@@ -172,6 +200,7 @@ function prepareSelectors(criticalCss, selectorLevels) {
 
 	if (currentLevel === null) {
 		currentLevel = createSelectorLevels(criticalCss, selectorLevels);
+		currentLevel.raws.semicolon = true;
 	}
 
 	return currentLevel;
@@ -182,14 +211,13 @@ function createSelectorLevels(criticalCss, selectorLevels) {
 		currentLevel = null,
 		temp = null;
 
-	numberOfSelectorSearches++;
-
 	currentLevel = criticalCss;
 
 	for (i = 0; i < selectorLevels.length; i++) {
 		temp = selectorLevels[i];
 		currentLevel.append(temp);
 		currentLevel = temp;
+		currentLevel.raws.semicolon = true;
 		temp = null;
 	}
 
@@ -224,8 +252,6 @@ function areTheSame(a, b) {
 		tempB = null,
 		result = false;
 
-	numberOfSameChecks++;
-
 	if (a.type === b.type) {
 		tempA = a.clone().removeAll()
 		tempB = b.clone().removeAll();
@@ -259,3 +285,5 @@ function getParents(line) {
 }
 
 module.exports = postcss.plugin('postcss-critical-split', CriticalSplit);
+module.exports.output_types = output_types;
+

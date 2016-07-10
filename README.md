@@ -153,6 +153,14 @@ a[rel=external]:before{
 ## Options
 The plugin accepts an object with additional options.
 
+### options.output
+*defaults to `critical`*
+Allowed values: `critical`, `rest` or `input` to return either the critical-css, the rest-css or just the original input-css.
+
+### options.save
+*defaults to `false`*
+If this is set to `true`, the generated critical-css file is immediately saved next to the original input file. The input file is overwritten by the rest-css file. This is standard behaviour by some people who use the plugin. This is no longer the default behaviour since this is not how PostCSS tasks and Gulp tasks should usually behave.
+
 ### options.suffix
 *defaults to `-critical`*
 
@@ -288,7 +296,3 @@ header{
 }
 ```
 
-## Considerations
-* I have only used this plugin myself in a Gulp-driven PostCSS flow. I'm not sure how it behaves elsewhere.
-* The plugin currently saves 2 files to disk per given CSS file (overwriting the original file in the process). I haven't used this plugin as part of a larger flow. In my buildflow, it runs as a seperate task before other PostCSS tasks are started.
-* This is my first PostCSS plugin. It might just not be best practice; it just worked for me and decided to share what I have. I hope I can at least help a few of you with this.
