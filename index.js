@@ -145,8 +145,6 @@ function getAllCriticals(originalCss, criticalCss) {
 			currentLevel = null;
 			line.remove(); // remove tagging comment
 		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'font-face')){
-			console.log('font-face rule found');
-			// console.log(line);
 			appendEmptyRule(criticalCss, line);
 		} else if (criticalActive === true && (line.type === 'decl' || line.type === 'comment')) {
 			appendDeclaration(criticalCss, line);
