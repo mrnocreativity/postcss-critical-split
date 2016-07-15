@@ -144,6 +144,10 @@ function getAllCriticals(originalCss, criticalCss) {
 			criticalActive = false
 			currentLevel = null;
 			line.remove(); // remove tagging comment
+		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'font-face')){
+			console.log('font-face rule found');
+			// console.log(line);
+			appendEmptyRule(criticalCss, line);
 		} else if (criticalActive === true && (line.type === 'decl' || line.type === 'comment')) {
 			appendDeclaration(criticalCss, line);
 			line.remove(); // remove line from originalCss as it is now alive in criticalCss
@@ -191,6 +195,13 @@ function appendDeclaration(criticalCss, line) {
 
 	currentLevel.append(line);
 	currentLevel.raws.semicolon = true;
+}
+
+function appendEmptyRule(criticalCss, line) {
+	var rule = line.clone();
+
+	rule.removeAll();
+	appendDeclaration(criticalCss, rule);
 }
 
 function prepareSelectors(criticalCss, selectorLevels) {
