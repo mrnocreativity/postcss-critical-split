@@ -144,6 +144,10 @@ function getAllCriticals(originalCss, criticalCss) {
 			criticalActive = false
 			currentLevel = null;
 			line.remove(); // remove tagging comment
+		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'keyframes')) { //keyframes shouldn't be split
+			appendDeclaration(criticalCss, line);
+		} else if (criticalActive === true && (line.type === 'decl' && hasParentAtRule(line, 'keyframes') === true)) {
+			// ignore this rule...
 		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'font-face')){
 			appendEmptyRule(criticalCss, line);
 		} else if (criticalActive === true && (line.type === 'decl' || line.type === 'comment')) {
@@ -267,6 +271,26 @@ function areTheSame(a, b) {
 
 		if (tempA.toString() === tempB.toString()) {
 			result =  true;
+		}
+	}
+
+	return result;
+}
+
+function hasParentAtRule(line, name) {
+	var result = false,
+		parents = getParents(line),
+		i = 0,
+		currentParent = null;
+
+	for (i; i < parents.length; i++) {
+		currentParent = parents[i];
+
+		//console.log(currentParent.type, currentParent.name, currentParent.text);
+
+		if (currentParent.type === 'atrule' && currentParent.name === name) {
+			//console.log('found a child rule of the', name);
+			result = true;
 		}
 	}
 
