@@ -8,6 +8,8 @@ A PostCSS plugin that takes existing CSS files and splits out the annotated crit
 * It goes through the given CSS files and finds critcal-start and -end tags. These CSS rules between these 2 markers are then moved out of the original file and saved into a separate critical-CSS file.
 * It keeps track of media-queries: If a tagged rule is inside a media query, the media query will be copied to the critical file as well.
 * It also works inside @font-face declarations: you can tag @font-face declarations which will be added to the critical-CSS file as well.
+* It also supports @keyframes: if a keyframes animation is found in the critically labeled CSS, it gets added to the critical rules at once.
+* You can label your critical CSS with so-called module names. This allows for selecting which pieces of critical CSS you actually want to extract (and keep things as lean as possible). This comes in handy to select only what is absolutely necessary for a specific page template in your website.
 
 ## What does it NOT do?
 * It does not automatically detect which rules should be considered critical. You have to tag them yourself.
@@ -19,7 +21,7 @@ For larger scale projects, automating critical-CSS detection is complicated, unp
 
 If you later decide to no longer support this workflow or switch to a different one (with different tools), the critical-comments are standard CSS and will not break your project.
 
-## Why split the files into 2 seperate files? Why not immediately move it into HTML?
+## Why split the files into 2 (or more) seperate files? Why not immediately move it into HTML?
 The idea here is that we want to generate our entire CSS file first and then split out what is considered 'critical'.
 Injecting it into an HTML file right away would be fairly dictative of your workflow. This allows for more flexible setups.
 
@@ -397,3 +399,21 @@ footer{
 }
 ```
 
+### options.separator
+* defaults to `:`*
+
+This is the seperator used in your critical start-tag to tag a module.
+
+```javascript
+/* gulpfile */
+gulp.src(['**/*.css','!**/*-critical.css'])
+	.pipe(postcss(require('postcss-critical-split')({
+		'modules': ['header', 'top-photo'],
+		'seperator': '--'
+	}));
+```
+
+```css
+/* critical:start--header */
+
+```
