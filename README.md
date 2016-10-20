@@ -296,3 +296,104 @@ header{
 }
 ```
 
+### options.modules
+* defaults to `null`, should be an array of strings*
+
+These are the modules you want to select from your css file into the critical file. This allows for targetting which parts of the CSS to include in the critical and which ones not.
+CSS rules that are not labeled by a module will be considered 'common' and thus will be added to the critical CSS at all times.
+
+```javascript
+/* gulpfile */
+gulp.src(['**/*.css','!**/*-critical.css'])
+	.pipe(postcss(require('postcss-critical-split')({
+		'modules': ['header', 'top-photo']
+	}));
+```
+```css
+/* before: main.css */
+
+/* critical:start:header */
+header{
+	background-color: #1d1d1d;
+	font-size: 2em;
+}
+/* critical:end */
+
+.login-button {
+	display: block;
+	border: red thin solid;
+}
+
+/* critical:start:top-photo */
+.top-photo{
+	background-color: #1d1d1d;
+	font-size: 2em;
+}
+/* critical:end */
+
+/* critical:start:preview-article */
+.preview-article{
+	color: #CCC;
+}
+/* critical:end */
+
+/* critical:start */
+.profile-picture{
+	float: right;
+	width: 20%;
+	height: auto;
+}
+/* critical:end */
+
+.aside {
+	text-decoration: underline;
+}
+
+footer{
+	background-color: #1d1d1d;
+	font-size: 1.1em;
+}
+```
+```css
+/* after: main.css */
+.login-button {
+	display: block;
+	border: red thin solid;
+}
+
+.preview-article{
+	color: #CCC;
+}
+
+.aside {
+	text-decoration: underline;
+}
+
+footer{
+	background-color: #1d1d1d;
+	font-size: 1.1em;
+}
+```
+
+```css
+/* after: main-critical.css */
+header{
+	background-color: #1d1d1d;
+	font-size: 2em;
+}
+
+.top-photo{
+	background-color: #1d1d1d;
+	font-size: 2em;
+}
+
+.aside {
+	text-decoration: underline;
+}
+
+footer{
+	background-color: #1d1d1d;
+	font-size: 1.1em;
+}
+```
+

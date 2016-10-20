@@ -17,7 +17,9 @@ var output_types = {
 		'blockTag': 'critical',
 		'suffix': '-critical',
 		'output': output_types.INPUT_CSS,
-		'save': false
+		'save': false,
+		'modules': null,
+		'separator': ':'
 	};
 
 function CriticalSplit(newOptions) {
@@ -105,6 +107,16 @@ function applyUserOptions(newOptions) {
 		result = false;
 	}
 
+	if (typeof userOptions.modules === 'string'){
+		userOptions.modules = [userOptions.modules];
+	} else if (userOptions.modules instanceof Array === false) {
+		userOptions.modules = defaults.modules;
+	}
+
+	if (typeof userOptions.separator !== 'string'){
+		userOptions.separator = defaults.separator;
+	}
+
 	return result;
 }
 
@@ -137,7 +149,7 @@ function getAllCriticals(originalCss, criticalCss) {
 		if (line.type === 'comment' && line.text === userOptions.blockTag) {
 			appendFullBlock(criticalCss,line);
 			line.remove(); // remove tagging comment
-		} else if (line.type === 'comment' && line.text === userOptions.startTag) {
+		} else if (line.type === 'comment' && isStartTag(line.text)) {
 			criticalActive = true;
 			line.remove(); // remove tagging comment
 		} else if (line.type === 'comment' && line.text === userOptions.endTag) {
@@ -157,6 +169,30 @@ function getAllCriticals(originalCss, criticalCss) {
 	});
 
 	originalCss.raws.semicolon = true;
+}
+
+function isStartTag(currentText) {
+	var result = false,
+		modules = userOptions.modules,
+		currentModule = null,
+		currentModuleStartTag = '',
+		i = 0;
+
+	if (currentText === userOptions.startTag) {
+		result = true;
+	} else {
+		for (i = 0; i < modules.length; i++) {
+			currentModule = modules[i];
+			currentModuleStartTag = userOptions.startTag + userOptions.separator + currentModule;
+
+			if (currentText === currentModuleStartTag) {
+				result = true;
+				break;
+			}
+		}
+	}
+
+	return result;
 }
 
 function getBlockFromTriggerTag(line) {
@@ -284,12 +320,9 @@ function hasParentAtRule(line, name) {
 		currentParent = null;
 
 	for (i; i < parents.length; i++) {
-		currentParent = parents[i];
-
-		//console.log(currentParent.type, currentParent.name, currentParent.text);
+		currentParent = parents[i]
 
 		if (currentParent.type === 'atrule' && currentParent.name === name) {
-			//console.log('found a child rule of the', name);
 			result = true;
 		}
 	}
