@@ -180,7 +180,7 @@ function isStartTag(currentText) {
 
 	if (currentText === userOptions.startTag) {
 		result = true;
-	} else {
+	} else if (modules !== null) {
 		for (i = 0; i < modules.length; i++) {
 			currentModule = modules[i];
 			currentModuleStartTag = userOptions.startTag + userOptions.separator + currentModule;
