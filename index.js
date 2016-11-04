@@ -272,10 +272,15 @@ function createSelectorLevels(criticalCss, selectorLevels) {
 
 	for (i = 0; i < selectorLevels.length; i++) {
 		temp = selectorLevels[i];
-		currentLevel.append(temp);
-		currentLevel = temp;
-		currentLevel.raws.semicolon = true;
-		temp = null;
+
+		if (typeof currentLevel.last !== 'undefined' && areTheSame(temp, currentLevel.last)) {
+			currentLevel = currentLevel.last;
+		} else {
+			currentLevel.append(temp);
+			currentLevel = temp;
+			currentLevel.raws.semicolon = true;
+			temp = null;
+		}
 	}
 
 	return currentLevel;
@@ -310,7 +315,7 @@ function areTheSame(a, b) {
 		result = false;
 
 	if (a.type === b.type) {
-		tempA = a.clone().removeAll()
+		tempA = a.clone().removeAll();
 		tempB = b.clone().removeAll();
 
 		if (tempA.toString() === tempB.toString()) {
