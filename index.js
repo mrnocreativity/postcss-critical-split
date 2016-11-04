@@ -178,7 +178,7 @@ function isMarkedTag(currentText, marker) {
 		currentModuleStartTag = '',
 		i = 0;
 
-	if (currentText === userOptions.blockTag) {
+	if (currentText === marker) {
 		result = true;
 	} else if (modules !== null) {
 		for (i = 0; i < modules.length; i++) {
