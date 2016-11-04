@@ -146,7 +146,7 @@ function getAllCriticals(originalCss, criticalCss) {
 
 		line.parent.raws.semicolon = true;
 
-		if (line.type === 'comment' && line.text === userOptions.blockTag) {
+		if (line.type === 'comment' && isBlockTag(line.text)) {
 			appendFullBlock(criticalCss,line);
 			line.remove(); // remove tagging comment
 		} else if (line.type === 'comment' && isStartTag(line.text)) {
@@ -171,19 +171,19 @@ function getAllCriticals(originalCss, criticalCss) {
 	originalCss.raws.semicolon = true;
 }
 
-function isStartTag(currentText) {
+function isMarkedTag(currentText, marker) {
 	var result = false,
 		modules = userOptions.modules,
 		currentModule = null,
 		currentModuleStartTag = '',
 		i = 0;
 
-	if (currentText === userOptions.startTag) {
+	if (currentText === userOptions.blockTag) {
 		result = true;
 	} else if (modules !== null) {
 		for (i = 0; i < modules.length; i++) {
 			currentModule = modules[i];
-			currentModuleStartTag = userOptions.startTag + userOptions.separator + currentModule;
+			currentModuleStartTag = marker + userOptions.separator + currentModule;
 
 			if (currentText === currentModuleStartTag) {
 				result = true;
@@ -193,6 +193,14 @@ function isStartTag(currentText) {
 	}
 
 	return result;
+}
+
+function isBlockTag(currentText) {
+	return isMarkedTag(currentText, userOptions.blockTag);
+}
+
+function isStartTag(currentText) {
+	return isMarkedTag(currentText, userOptions.startTag);
 }
 
 function getBlockFromTriggerTag(line) {
