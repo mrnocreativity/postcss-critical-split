@@ -19,21 +19,88 @@ var output_types = {
 		'output': output_types.INPUT_CSS,
 		'save': false,
 		'modules': null,
-		'separator': ':'
-	};
+		'separator': ':',
+		'debug': false
+	},
+	stats = null;
 
 function CriticalSplit(newOptions) {
 	newOptions = newOptions || {};
 
 	return function(originalCss, result) {
 		if (applyUserOptions(newOptions)) {
+			setupStats();
 			performTransform(originalCss, result);
+
+			if (userOptions.debug === true) {
+				processStats();
+			}
 		};
+
+		return result;
 	};
 }
 
+function timestamp() {
+	return new Date().getTime();
+}
+
+function setupStats() {
+	stats = {};
+	stats.startTime = 0;
+	stats.endTime = 0;
+	stats.processTime = 0;
+
+	stats.rules = 0;
+	stats.criticals = 0;
+	stats.criticalPercentage = 0;
+
+	stats.loops = 0;
+
+	stats.clones = 0;
+	stats.emtpyClones = 0;
+
+	stats.compares = 0;
+	stats.appends = 0;
+	stats.getParents = 0;
+	stats.parentRequest = 0;
+}
+
+function processStats() {
+	var key = null,
+		value = null;
+
+	stats.processTime = stats.endTime - stats.startTime;
+	console.log('----- postcss-critical-split debug info ---------')
+
+	for (key in stats) {
+		if (stats.hasOwnProperty(key)) {
+			value = stats[key];
+
+			switch(key) {
+				case 'processTime':
+					value = value + 'ms';
+					break;
+				case 'startTime':
+				case 'endTime':
+					value = null;
+					break;
+				case 'criticalPercentage':
+					value = (stats.criticals / stats.rules * 100).toFixed(2) + '%';
+					break;
+			}
+
+			if (value !== null) {
+				console.log(key + ':', value);
+			}
+		}
+	}
+
+	console.log('-------------------------------------------------')
+}
+
 function performTransform(inputCss, result) {
-	var originalCss = inputCss.clone(true),
+	var originalCss = clone(inputCss),
 		criticalCss = postcss.root(),
 		absolutePath = null,
 		directoryPath = null,
@@ -131,83 +198,96 @@ function createCriticalFilename(filename) {
 	return result;
 }
 
-function clearLevel(level) {
-	level.walk(function(nestedRule) {
-		nestedRule.remove();
-	});
-	level.raws.semicolon = true;
-}
-
 function getAllCriticals(originalCss, criticalCss) {
-	var currentLevel = null;
+	var currentLevel = null,
+		blockMarkers = getModuleMarkers(userOptions.blockTag),
+		moduleMarkers = getModuleMarkers(userOptions.startTag);
 
+	stats.startTime = timestamp();
 	originalCss.walk(function(line) {
 		var temp = null;
 
+		stats.rules++;
 		line.parent.raws.semicolon = true;
+		stats.parentRequest++;
 
-		if (line.type === 'comment' && isBlockTag(line.text)) {
-			appendFullBlock(criticalCss,line);
-			line.remove(); // remove tagging comment
-		} else if (line.type === 'comment' && isStartTag(line.text)) {
-			criticalActive = true;
-			line.remove(); // remove tagging comment
-		} else if (line.type === 'comment' && line.text === userOptions.endTag) {
+		if (line.type === 'comment' && line.text === userOptions.endTag) {
 			criticalActive = false
 			currentLevel = null;
 			line.remove(); // remove tagging comment
+		} else if (line.type === 'comment' && isBlockTag(line.text, blockMarkers)) {
+			appendFullBlock(criticalCss,line);
+			line.remove(); // remove tagging comment
+		} else if (line.type === 'comment' && isStartTag(line.text, moduleMarkers)) {
+			criticalActive = true;
+			line.remove(); // remove tagging comment
 		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'keyframes')) { //keyframes shouldn't be split
+			stats.criticals++;
 			appendDeclaration(criticalCss, line);
 		} else if (criticalActive === true && (line.type === 'decl' && hasParentAtRule(line, 'keyframes') === true)) {
 			// ignore this rule...
 		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'font-face')){
+			// this is a rather difficult one
+			// @font-face is a 'naked atrule': it has no params at all
+			// it is defined once every time you want to add a font
+			// so we can't rely on 'searching for existing parent atrules' for new declarations as it might cross the context
+			// so we manually add the atrule ourselves whenever we come across once
+			stats.criticals++;
 			appendEmptyRule(criticalCss, line);
 		} else if (criticalActive === true && (line.type === 'decl' || line.type === 'comment')) {
+			stats.criticals++;
 			appendDeclaration(criticalCss, line);
 			line.remove(); // remove line from originalCss as it is now alive in criticalCss
 		}
 	});
+	stats.endTime = timestamp();
 
 	originalCss.raws.semicolon = true;
 }
 
-function isMarkedTag(currentText, marker) {
-	var result = false,
-		modules = userOptions.modules,
-		currentModule = null,
-		currentModuleStartTag = '',
-		i = 0;
+function getModuleMarkers(startTag) {
+	var modules = userOptions.modules,
+		markers = null;
+
+	if (userOptions.modules !== null) {
+		markers = [];
+
+		modules.forEach(function(currentModule){
+			stats.loops++;
+			markers.push(startTag + userOptions.separator + currentModule);
+		});
+	}
+
+	return markers;
+}
+
+function isMarkedTag(currentText, marker, markers) {
+	var result = false;
 
 	if (currentText === marker) {
 		result = true;
-	} else if (modules !== null) {
-		for (i = 0; i < modules.length; i++) {
-			currentModule = modules[i];
-			currentModuleStartTag = marker + userOptions.separator + currentModule;
-
-			if (currentText === currentModuleStartTag) {
-				result = true;
-				break;
-			}
-		}
+	} else if (markers !== null && markers.indexOf(currentText) != -1) {
+		result = true;
 	}
 
 	return result;
 }
 
-function isBlockTag(currentText) {
-	return isMarkedTag(currentText, userOptions.blockTag);
+function isBlockTag(currentText, moduleMarkers) {
+	return isMarkedTag(currentText, userOptions.blockTag, moduleMarkers);
 }
 
-function isStartTag(currentText) {
-	return isMarkedTag(currentText, userOptions.startTag);
+function isStartTag(currentText, moduleMarkers) {
+	return isMarkedTag(currentText, userOptions.startTag, moduleMarkers);
 }
 
 function getBlockFromTriggerTag(line) {
 	var result = null;
 
+	stats.parentRequest++;
 	if (line.parent.type !== 'root') {
 		result = line.parent;
+		stats.parentRequest++;
 	}
 
 	return result;
@@ -227,6 +307,7 @@ function appendFullBlock(criticalCss, line) {
 				if (!(line.type === 'comment' && line.text === userOptions.blockTag)){
 					// we don't want to add the blockTag comment back; skip that
 					currentLevel.append(line);
+					stats.appends++;
 					line.remove();
 					currentLevel.raws.semicolon = true;
 				}
@@ -240,13 +321,13 @@ function appendDeclaration(criticalCss, line) {
 		currentLevel = prepareSelectors(criticalCss, parents);
 
 	currentLevel.append(line);
+	stats.appends++;
 	currentLevel.raws.semicolon = true;
 }
 
 function appendEmptyRule(criticalCss, line) {
-	var rule = line.clone();
+	var rule = clone(line, true);
 
-	rule.removeAll();
 	appendDeclaration(criticalCss, rule);
 }
 
@@ -271,6 +352,7 @@ function createSelectorLevels(criticalCss, selectorLevels) {
 	currentLevel = criticalCss;
 
 	for (i = 0; i < selectorLevels.length; i++) {
+		stats.loops++;
 		temp = selectorLevels[i];
 
 		if (typeof currentLevel.last !== 'undefined' && areTheSame(temp, currentLevel.last)) {
@@ -281,6 +363,8 @@ function createSelectorLevels(criticalCss, selectorLevels) {
 			currentLevel.raws.semicolon = true;
 			temp = null;
 		}
+
+
 	}
 
 	return currentLevel;
@@ -295,6 +379,7 @@ function findSelector(criticalCss, selectorLevels) {
 	currentLevel = criticalCss;
 
 	for (i = 0; i < selectorLevels.length; i++) {
+		stats.loops++;
 		temp = selectorLevels[i];
 		currentLevel = currentLevel.last;
 
@@ -315,8 +400,9 @@ function areTheSame(a, b) {
 		result = false;
 
 	if (a.type === b.type) {
-		tempA = a.clone().removeAll();
-		tempB = b.clone().removeAll();
+		stats.compares++;
+		tempA = clone(a, true);
+		tempB = clone(b, true);
 
 		if (tempA.toString() === tempB.toString()) {
 			result =  true;
@@ -333,9 +419,11 @@ function hasParentAtRule(line, name) {
 		currentParent = null;
 
 	for (i; i < parents.length; i++) {
-		currentParent = parents[i]
+		stats.loops++;
+		currentParent = parents[i];
 
 		if (currentParent.type === 'atrule' && currentParent.name === name) {
+			console.log('currentparent:', currentParent.toString());
 			result = true;
 		}
 	}
@@ -344,23 +432,44 @@ function hasParentAtRule(line, name) {
 }
 
 function getParents(line) {
-	 var parents = [],
+	var parents = [],
 		currentParent = null,
 		temp = null;
 
+	stats.getParents++;
 	currentParent = line.parent;
+	stats.parentRequest++;
 
 	while (typeof currentParent !== 'undefined' && currentParent.type !== 'root') {
-		temp = currentParent.clone();
-		clearLevel(temp);
+		temp = clone(currentParent, true);
 		parents.push(temp);
 		temp = null;
 		currentParent = currentParent.parent;
+		stats.parentRequest++;
 	}
 
 	parents = parents.reverse();
 
 	return parents;
+
+}
+
+function clone(originalRule, makeEmpty) {
+	var newRule = null,
+		temp = null;
+
+	if (makeEmpty === true) {
+		temp = originalRule.nodes;
+		originalRule.nodes = [];
+		newRule = originalRule.clone();
+		originalRule.nodes = temp;
+		stats.emtpyClones++;
+	} else {
+		newRule = originalRule.clone();
+		stats.clones++;
+	}
+
+	return newRule;
 }
 
 module.exports = postcss.plugin('postcss-critical-split', CriticalSplit);
