@@ -423,7 +423,6 @@ function hasParentAtRule(line, name) {
 		currentParent = parents[i];
 
 		if (currentParent.type === 'atrule' && currentParent.name === name) {
-			console.log('currentparent:', currentParent.toString());
 			result = true;
 		}
 	}
