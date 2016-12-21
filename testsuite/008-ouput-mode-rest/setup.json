@@ -1,5 +1,5 @@
 {
-	"name": "should use critical as default output mode",
+	"name": "should return rest-css when in rest-output-mode",
 	"input": "input.css",
 	"output": "output.css"
 }

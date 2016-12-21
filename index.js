@@ -303,7 +303,7 @@ function appendFullBlock(criticalCss, line) {
 		parents = getParents(line);
 		currentLevel = prepareSelectors(criticalCss, parents);
 
-		if (currentLevel.type === 'rule') {
+		if (currentLevel.type === 'rule' || currentLevel.type === 'atrule') {
 			block.walk(function(line) {
 				if (!(line.type === 'comment' && line.text === userOptions.blockTag)){
 					// we don't want to add the blockTag comment back; skip that

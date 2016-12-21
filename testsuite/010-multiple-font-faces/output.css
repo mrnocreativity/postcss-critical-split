@@ -1,0 +1,6 @@
+@font-face {
+	font-family: "myFancyFont2";
+	font-weight: normal;
+	font-style: normal;
+	src: url('myfile2.woff') format('woff2');
+}

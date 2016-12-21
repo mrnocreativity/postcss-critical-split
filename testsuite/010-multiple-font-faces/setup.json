@@ -1,0 +1,5 @@
+{
+	"name": "should always split up font-face rules and not merge them",
+	"input": "input.css",
+	"output": "output.css"
+}
