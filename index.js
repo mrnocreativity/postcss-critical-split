@@ -75,6 +75,7 @@ function processStats() {
 	message += '----- postcss-critical-split debug info ---------\n';
 
 	for (key in stats) {
+		/* istanbul ignore else */
 		if (stats.hasOwnProperty(key)) {
 			value = stats[key];
 
