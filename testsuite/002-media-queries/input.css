@@ -1,0 +1,13 @@
+/* critical:start */
+body {
+	background-color: black;
+}
+
+p {
+	color: red;
+}
+/* critical:end */
+
+a {
+ 	text-decoration: none;
+}
