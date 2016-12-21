@@ -301,6 +301,11 @@ function appendFullBlock(criticalCss, line) {
 
 	if (block !== null) {
 		parents = getParents(line);
+
+		if (block.type === 'atrule' && block.name === 'font-face') {
+			appendEmptyRule(criticalCss, block);
+		}
+
 		currentLevel = prepareSelectors(criticalCss, parents);
 
 		if (currentLevel.type === 'rule' || currentLevel.type === 'atrule') {

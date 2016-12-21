@@ -1,6 +1,18 @@
 @font-face {
+	font-family: "myFancyFont";
+	font-weight: normal;
+	font-style: normal;
+	src: url('myfile.woff') format('woff');
+}
+
+@font-face {
 	font-family: "myFancyFont2";
 	font-weight: normal;
 	font-style: normal;
 	src: url('myfile2.woff') format('woff2');
+}
+
+span {
+	display: inline-block;
+	color: #333;
 }

@@ -1,7 +1,35 @@
+/* critical:start */
+@font-face {
+	font-family: "myFancyFont";
+	font-weight: normal;
+	font-style: normal;
+	src: url('myfile.woff') format('woff');
+}
+/* critical:end */
+
+a {
+ 	text-decoration: none;
+}
+
+table {
+	width: 100%;
+	height: 200%;
+}
+
 @font-face {
 	font-family: "myFancyFont2";
 	font-weight: normal;
 	font-style: normal;
 	src: url('myfile2.woff') format('woff2');
 	/* critical */
+}
+
+* {
+	font-family: Arial, "Arial Black", sans-serif;
+}
+
+span {
+	/* critical */
+	display: inline-block;
+	color: #333;
 }
