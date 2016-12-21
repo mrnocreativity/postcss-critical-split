@@ -1,0 +1,5 @@
+{
+	"name": "should keep the media-query nesting intact",
+	"input": "input.css",
+	"output": "output.css"
+}

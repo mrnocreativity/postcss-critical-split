@@ -1,0 +1,42 @@
+strong {
+	font-weight: bold;
+}
+
+/* critical:start */
+p{
+	color: #333;
+}
+
+@media screen and (min-width: 300px) {
+	strong {
+		color: #f00;
+	}
+
+	p {
+		float: left;
+		/* critical:end */
+		text-decoration: underline;
+	}
+
+	li {
+		display: block;
+
+		float: left;
+		text-align: center;
+		padding: 0;
+		/* critical:start */
+		margin: 0;
+		position: relative;
+		border: 1px solid red;
+	}
+}
+
+table {
+	background-color: green;
+	/* critical:end */
+	border-top: 1px solid blue;
+}
+
+h1 {
+	text-decoration: underline;
+}

@@ -1,0 +1,15 @@
+strong {
+	font-weight: bold;
+}
+
+@media screen and (min-width: 300px) {
+	strong {
+		color: #f00;
+	}
+
+	p {
+		/* critical */
+		float: left;
+		text-decoration: underline;
+	}
+}

@@ -1,0 +1,16 @@
+p{
+	color: #333;
+}
+
+@media screen and (min-width: 300px) {
+	p {
+		float: left;
+		text-decoration: underline;
+	}
+
+	li {
+		float: left;
+		text-align: center;
+		padding: 0;
+	}
+}

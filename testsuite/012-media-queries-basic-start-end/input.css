@@ -1,0 +1,32 @@
+strong {
+	font-weight: bold;
+}
+
+p{
+	color: #333;
+	/* critical */
+}
+
+@media screen and (min-width: 300px) {
+	strong {
+		color: #f00;
+	}
+
+	p {
+		/* critical */
+		float: left;
+		text-decoration: underline;
+	}
+
+	li {
+		display: block;
+		/* critical:start */
+		float: left;
+		text-align: center;
+		padding: 0;
+		/* critical:end */
+		margin: 0;
+		position: relative;
+		border: 1px solid red;
+	}
+}
