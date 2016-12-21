@@ -1,0 +1,16 @@
+body {
+	background-color: black;
+}
+
+p {
+	color: red;
+}
+
+a {
+ 	/* this-is-critical */
+ 	text-decoration: none;
+}
+
+ul {
+	padding: 0;
+}

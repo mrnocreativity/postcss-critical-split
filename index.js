@@ -16,7 +16,7 @@ var output_types = {
 		'endTag': 'critical:end',
 		'blockTag': 'critical',
 		'suffix': '-critical',
-		'output': output_types.INPUT_CSS,
+		'output': output_types.CRITICAL_CSS,
 		'save': false,
 		'modules': null,
 		'separator': ':',
