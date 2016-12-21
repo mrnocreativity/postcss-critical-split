@@ -1,0 +1,6 @@
+{
+	"name": "should log statistics when debug mode is enabled",
+	"input": "input.css",
+	"output": "output.css",
+	"process": "process.js"
+}

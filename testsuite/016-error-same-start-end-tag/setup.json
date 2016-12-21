@@ -1,0 +1,6 @@
+{
+	"name": "should not throw an error when starttag and endtag are the same",
+	"input": "input.css",
+	"output": "output.css",
+	"process": "process.js"
+}

@@ -101,15 +101,27 @@ function clean(root) {
 }
 
 function createScenario(test) {
+	var inputBytes = null,
+		input = null,
+		outputBytes = null,
+		output = null,
+		testResult = null,
+		customProcess = null;
 
-	it (test.setup.name, function(){
-		var inputBytes = fs.readFileSync('./' + path.join(test.directory, test.setup.input)),
-			input = postcss.parse(inputBytes).toResult(),
-			outputBytes = fs.readFileSync('./' + path.join(test.directory, test.setup.output)),
-			output = postcss.parse(outputBytes).toResult();
+	inputBytes = fs.readFileSync('./' + path.join(test.directory, test.setup.input)),
+	input = postcss.parse(inputBytes).toResult(),
+	outputBytes = fs.readFileSync('./' + path.join(test.directory, test.setup.output)),
+	output = postcss.parse(outputBytes).toResult();
 
-		return run(input, output, test.split);
-	});
+	if (typeof test.setup.process === 'string') {
+		customProcess = require('./' + path.join(test.directory, test.setup.process));
+
+		it (test.setup.name, customProcess.bind(null, criticalSplit, input, output, test.split));
+	} else {
+		it (test.setup.name, function(){
+			return run(input, output, test.split);
+		});
+	}
 }
 
 loadTests();

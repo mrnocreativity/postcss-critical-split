@@ -68,10 +68,11 @@ function setupStats() {
 
 function processStats() {
 	var key = null,
-		value = null;
+		value = null,
+		message = '';
 
 	stats.processTime = stats.endTime - stats.startTime;
-	console.log('----- postcss-critical-split debug info ---------')
+	message += '----- postcss-critical-split debug info ---------\n';
 
 	for (key in stats) {
 		if (stats.hasOwnProperty(key)) {
@@ -91,12 +92,13 @@ function processStats() {
 			}
 
 			if (value !== null) {
-				console.log(key + ':', value);
+				message += key + ': ' + value + '\n';
 			}
 		}
 	}
 
-	console.log('-------------------------------------------------')
+	message += '-------------------------------------------------\n';
+	console.log(message);
 }
 
 function performTransform(inputCss, result) {
