@@ -1,0 +1,32 @@
+body {
+	background-color: black;
+}
+
+p {
+	color: red;
+}
+
+a {
+ 	text-decoration: none;
+}
+
+@media screen and (min-width: 400px) {
+	a {
+		color: #ff0;
+		border-bottom: 1px solid #ff0;
+		/* critical */
+	}
+}
+
+@media screen and (min-width: 450px) {
+	strong {
+		transform: scale(200%);
+	}
+}
+
+h1 {
+	font-size: 3em;
+	font-weight: bold;
+}
+
+

@@ -1,0 +1,5 @@
+{
+	"name": "should split rules using blocktags",
+	"input": "input.css",
+	"output": "output.css"
+}

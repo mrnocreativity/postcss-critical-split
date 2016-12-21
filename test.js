@@ -97,7 +97,7 @@ function clean(root) {
 		line.raws = createRaws(line.type);
 	});
 
-	console.log(root.toString());
+	// console.log(root.toString());
 
 	return root.toString();
 }

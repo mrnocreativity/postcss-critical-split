@@ -1,0 +1,44 @@
+body {
+	background-color: black;
+}
+
+p {
+	color: red;
+}
+
+a {
+ 	text-decoration: none;
+}
+
+@media screen and (min-width: 400px) {
+	a {
+		color: #ff0;
+		border-bottom: 1px solid #ff0;
+		/* critical */
+	}
+}
+
+section {
+	position: absolute;
+}
+
+@media screen and (min-width: 400px) {
+	ul div {
+		float: left;
+		/* critical */
+	}
+
+	section:before {
+		content: ' ';
+		/* critical */
+		clear: both;
+		display: block;
+	}
+}
+
+h1 {
+	font-size: 3em;
+	font-weight: bold;
+}
+
+

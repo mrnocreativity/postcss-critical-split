@@ -1,0 +1,5 @@
+{
+	"name": "should split nested media queries correctly based on blocktags",
+	"input": "input.css",
+	"output": "output.css"
+}

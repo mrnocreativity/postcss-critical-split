@@ -1,0 +1,6 @@
+@media screen and (min-width: 400px) {
+	a {
+		color: #ff0;
+		border-bottom: 1px solid #ff0;
+	}
+}
