@@ -28,7 +28,12 @@ function loadTests() {
 
 		currentTest = {};
 		currentTest.setup = require('./' + path.join(currentPath, 'setup'));
-		currentTest.split = require('./' + path.join(currentPath, 'split-settings'));
+
+		try {
+			currentTest.split = require('./' + path.join(currentPath, 'split-settings'));
+		} catch(ex) {
+			//do nothing
+		}
 		currentTest.directory = currentPath;
 
 		tests.push(currentTest);
@@ -46,10 +51,6 @@ function runTests() {
 }
 
 function run(input, output, opts) {
-	if (typeof opts === 'undefined') {
-		opts = {};
-	}
-
 	return postcss([criticalSplit(opts)]).process(input)
 		.then( function(result) {
 			var resultCss = clean(result.root),

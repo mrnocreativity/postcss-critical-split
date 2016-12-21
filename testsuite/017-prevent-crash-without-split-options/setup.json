@@ -1,0 +1,5 @@
+{
+	"name": "should not crash when no split options are passed to the plugin",
+	"input": "input.css",
+	"output": "output.css"
+}
