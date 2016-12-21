@@ -65,7 +65,7 @@ function createRaws(type) {
 
 	if (type === 'decl') {
 		result = {
-			'before': ' ',
+			'before': '\n     ',
 			'after': ' ',
 			'between': ': ',
 			'semicolon': true,
@@ -76,8 +76,8 @@ function createRaws(type) {
 		};
 	} else {
 		result = {
-			'before': ' ',
-			'after': ' ',
+			'before': '\n ',
+			'after': '\n ',
 			'between': ' ',
 			'semicolon': true,
 			'afterName': ' ',
