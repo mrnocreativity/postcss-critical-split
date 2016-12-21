@@ -159,7 +159,8 @@ function applyUserOptions(newOptions) {
 	var errorMessage ='',
 		result = true;
 
-	userOptions = merge(defaults, newOptions);
+	userOptions = merge(true, defaults);
+	merge(userOptions, newOptions);
 
 	if (userOptions.startTag === userOptions.endTag) {
 		errorMessage += '\n\n';

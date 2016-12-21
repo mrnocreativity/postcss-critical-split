@@ -1,0 +1,28 @@
+/* critical:start */
+body {
+	background-color: black;
+}
+
+p {
+	color: red;
+}
+/* critical:end */
+
+a {
+ 	text-decoration: none;
+}
+
+table {
+	width: 100%;
+	height: 200%;
+}
+
+* {
+	font-family: Arial, "Arial Black", sans-serif;
+}
+
+span {
+	/* critical */
+	display: inline-block;
+	color: #333;
+}

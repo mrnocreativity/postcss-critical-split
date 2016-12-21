@@ -1,0 +1,5 @@
+{
+	"name": "should use critical as default output mode",
+	"input": "input.css",
+	"output": "output.css"
+}
