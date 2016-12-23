@@ -159,53 +159,6 @@ The plugin accepts an object with additional options.
 *defaults to `critical`*
 Allowed values: `critical`, `rest` or `input` to return either the critical-css, the rest-css or just the original input-css.
 
-### options.save
-*defaults to `false`*
-If this is set to `true`, the generated critical-css file is immediately saved next to the original input file. The input file is overwritten by the rest-css file. This is standard behaviour by some people who use the plugin. This is no longer the default behaviour since this is not how PostCSS tasks and Gulp tasks should usually behave.
-
-### options.suffix
-*defaults to `-critical`*
-
-This is the suffix that will be added to the generated critical-CSS file.
-
-```javascript
-/* gulpfile */
-gulp.src(['**/*.css','!**/*.head.css'])
-	.pipe(postcss(require('postcss-critical-split')({
-		'suffix':'.head'
-	}));
-```
-```css
-/* before: main.css */
-/* critical:start */
-header{
-	background-color: #1d1d1d;
-	font-size: 2em;
-}
-/* critical:end */
-
-footer{
-	background-color: #1d1d1d;
-	font-size: 1.1em;
-}
-```
-```css
-/* after: main.css */
-footer{
-	background-color: #1d1d1d;
-	font-size: 1.1em;
-}
-```
-
-```css
-/* after: main.head.css */
-header{
-	background-color: #1d1d1d;
-	font-size: 2em;
-}
-```
-
-
 ### options.blockTag
 *defaults to `critical`*
 
