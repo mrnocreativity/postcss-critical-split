@@ -4,11 +4,13 @@ A PostCSS plugin that takes existing CSS files and splits out the annotated crit
 ![A PostCSS plugin to split your Critical CSS from the rest](https://raw.githubusercontent.com/mrnocreativity/postcss-critical-split/master/critical-split.gif)
 
 ## What exactly does this plugin do?
-* It goes through the given CSS files and finds all rules that have a CSS comment in them that indicates they are critical. These rules are then moved out of the original file and saved into a separate critical-CSS file.
-* It goes through the given CSS files and finds critcal-start and -end tags. These CSS rules between these 2 markers are then moved out of the original file and saved into a separate critical-CSS file.
-* It keeps track of media-queries: If a tagged rule is inside a media query, the media query will be copied to the critical file as well.
-* It also works inside @font-face declarations: you can tag @font-face declarations which will be added to the critical-CSS file as well.
-* It also supports @keyframes: if a keyframes animation is found in the critically labeled CSS, it gets added to the critical rules at once.
+* It supports 3 output modes: `critical`, `rest` and `input`. This can be used to choose which type of output you'd like to generate.
+* In critical-output-mode it goes through the given CSS files and finds all rules that have a CSS comment in them that indicates they are critical. These rules are isolated and returned to PostCSS (this is called the critical CSS).
+* In rest-output-mode it goes through the given CSS files and finds all rules that have a CSS comment in them that indicates they are critical. These rules ignored; the rest is returned to PostCSS (this is called the rest CSS).
+* It can select/ignore critical CSS rules between start- & end-comment-tags or select/ignore rules based on a single line in a CSS block.
+* It keeps track of media-queries: If a tagged rule is inside a media query, the media query will be copied to the critical CSS as well.
+* It also works inside @font-face declarations: you can tag @font-face declarations which will be added to the critical CSS as well.
+* It also supports @keyframes: if a keyframes animation is found in the critical CSS, it gets added to the critical CSS at once.
 * You can label your critical CSS with so-called module names. This allows for selecting which pieces of critical CSS you actually want to extract (and keep things as lean as possible). This comes in handy to select only what is absolutely necessary for a specific page template in your website.
 
 ## What does it NOT do?
@@ -36,7 +38,7 @@ npm install --save-dev postcss-critical-split
 
 ```javascript
 gulp.src(['**/*.css','!**/*-critical.css'])
-	.pipe(postcss(require('postcss-critical-split'));
+	.pipe(postcss(require('postcss-critical-split')));
 ```
 ```css
 /* before: main.css */
@@ -158,53 +160,6 @@ The plugin accepts an object with additional options.
 ### options.output
 *defaults to `critical`*
 Allowed values: `critical`, `rest` or `input` to return either the critical-css, the rest-css or just the original input-css.
-
-### options.save
-*defaults to `false`*
-If this is set to `true`, the generated critical-css file is immediately saved next to the original input file. The input file is overwritten by the rest-css file. This is standard behaviour by some people who use the plugin. This is no longer the default behaviour since this is not how PostCSS tasks and Gulp tasks should usually behave.
-
-### options.suffix
-*defaults to `-critical`*
-
-This is the suffix that will be added to the generated critical-CSS file.
-
-```javascript
-/* gulpfile */
-gulp.src(['**/*.css','!**/*.head.css'])
-	.pipe(postcss(require('postcss-critical-split')({
-		'suffix':'.head'
-	}));
-```
-```css
-/* before: main.css */
-/* critical:start */
-header{
-	background-color: #1d1d1d;
-	font-size: 2em;
-}
-/* critical:end */
-
-footer{
-	background-color: #1d1d1d;
-	font-size: 1.1em;
-}
-```
-```css
-/* after: main.css */
-footer{
-	background-color: #1d1d1d;
-	font-size: 1.1em;
-}
-```
-
-```css
-/* after: main.head.css */
-header{
-	background-color: #1d1d1d;
-	font-size: 2em;
-}
-```
-
 
 ### options.blockTag
 *defaults to `critical`*
