@@ -4,11 +4,13 @@ A PostCSS plugin that takes existing CSS files and splits out the annotated crit
 ![A PostCSS plugin to split your Critical CSS from the rest](https://raw.githubusercontent.com/mrnocreativity/postcss-critical-split/master/critical-split.gif)
 
 ## What exactly does this plugin do?
-* It goes through the given CSS files and finds all rules that have a CSS comment in them that indicates they are critical. These rules are then moved out of the original file and saved into a separate critical-CSS file.
-* It goes through the given CSS files and finds critcal-start and -end tags. These CSS rules between these 2 markers are then moved out of the original file and saved into a separate critical-CSS file.
-* It keeps track of media-queries: If a tagged rule is inside a media query, the media query will be copied to the critical file as well.
-* It also works inside @font-face declarations: you can tag @font-face declarations which will be added to the critical-CSS file as well.
-* It also supports @keyframes: if a keyframes animation is found in the critically labeled CSS, it gets added to the critical rules at once.
+* It supports 3 output modes: `critical`, `rest` and `input`. This can be used to choose which type of output you'd like to generate.
+* In critical-output-mode it goes through the given CSS files and finds all rules that have a CSS comment in them that indicates they are critical. These rules are isolated and returned to PostCSS (this is called the critical CSS).
+* In rest-output-mode it goes through the given CSS files and finds all rules that have a CSS comment in them that indicates they are critical. These rules ignored; the rest is returned to PostCSS (this is called the rest CSS).
+* It can select/ignore critical CSS rules between start- & end-comment-tags or select/ignore rules based on a single line in a CSS block.
+* It keeps track of media-queries: If a tagged rule is inside a media query, the media query will be copied to the critical CSS as well.
+* It also works inside @font-face declarations: you can tag @font-face declarations which will be added to the critical CSS as well.
+* It also supports @keyframes: if a keyframes animation is found in the critical CSS, it gets added to the critical CSS at once.
 * You can label your critical CSS with so-called module names. This allows for selecting which pieces of critical CSS you actually want to extract (and keep things as lean as possible). This comes in handy to select only what is absolutely necessary for a specific page template in your website.
 
 ## What does it NOT do?
