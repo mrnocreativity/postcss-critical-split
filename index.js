@@ -186,10 +186,6 @@ function applyUserOptions(newOptions) {
 		userOptions.modules = defaults.modules;
 	}
 
-	if (typeof userOptions.separator !== 'string'){
-		userOptions.separator = defaults.separator;
-	}
-
 	return result;
 }
 
@@ -222,7 +218,7 @@ function getAllCriticals(originalCss, criticalCss) {
 			currentLevel = null;
 			line.remove(); // remove tagging comment
 		} else if (line.type === 'comment' && isBlockTag(line.text, blockMarkers)) {
-			appendFullBlock(criticalCss,line);
+			appendFullBlock(criticalCss, line);
 			line.remove(); // remove tagging comment
 		} else if (line.type === 'comment' && isStartTag(line.text, moduleMarkers)) {
 			criticalActive = true;
@@ -314,12 +310,12 @@ function appendFullBlock(criticalCss, line) {
 		currentLevel = prepareSelectors(criticalCss, parents);
 
 		if (currentLevel.type === 'rule' || currentLevel.type === 'atrule') {
-			block.walk(function(line) {
-				if (!(line.type === 'comment' && line.text === userOptions.blockTag)){
+			block.walk(function(currentLine) {
+				if (!(currentLine.type === 'comment' && line.text === currentLine.text)){
 					// we don't want to add the blockTag comment back; skip that
-					currentLevel.append(line);
+					currentLevel.append(currentLine);
 					stats.appends++;
-					line.remove();
+					currentLine.remove();
 					currentLevel.raws.semicolon = true;
 				}
 			});

@@ -1,0 +1,5 @@
+{
+	"name": "should append new critical rules to existing media-query selectors (mq - normal- mq)",
+	"input": "input.css",
+	"output": "output.css"
+}

@@ -1,0 +1,5 @@
+{
+	"name": "should support single modules instead of arrays of modules listed in the modules option",
+	"input": "input.css",
+	"output": "output.css"
+}

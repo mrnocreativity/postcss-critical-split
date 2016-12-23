@@ -1,0 +1,5 @@
+{
+	"name": "should return critical-css when in critical-output-mode",
+	"input": "input.css",
+	"output": "output.css"
+}

@@ -1,5 +1,0 @@
-{
-	"name": "should append rules to existing media queries if they follow each other",
-	"input": "input.css",
-	"output": "output.css"
-}

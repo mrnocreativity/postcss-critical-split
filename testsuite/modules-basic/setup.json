@@ -1,0 +1,5 @@
+{
+	"name": "should grab the criticals listed in the modules option",
+	"input": "input.css",
+	"output": "output.css"
+}

@@ -1,0 +1,5 @@
+{
+	"name": "should allow for custom separators in modules",
+	"input": "input.css",
+	"output": "output.css"
+}

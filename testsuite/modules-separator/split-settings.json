@@ -1,0 +1,4 @@
+{
+	"modules": ["header", "logo", "nav"],
+	"separator": "#"
+}
