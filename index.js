@@ -113,6 +113,8 @@ function performTransform(inputCss, result) {
 	cleanUp(criticalCss);
 
 	if (userOptions.save === true) {
+		console.warn('postcss-critical-split: The save feature has been deprecated and should be avoided. This feature will be removed in v3.0.0. Read more about it here: https://github.com/mrnocreativity/postcss-critical-split/issues/3');
+
 		absolutePath = originalCss.source.input.file,
 		directoryPath = path.dirname(absolutePath),
 		nonCriticalFilename = path.basename(absolutePath),
