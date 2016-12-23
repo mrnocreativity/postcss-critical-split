@@ -36,7 +36,7 @@ npm install --save-dev postcss-critical-split
 
 ```javascript
 gulp.src(['**/*.css','!**/*-critical.css'])
-	.pipe(postcss(require('postcss-critical-split'));
+	.pipe(postcss(require('postcss-critical-split')));
 ```
 ```css
 /* before: main.css */
