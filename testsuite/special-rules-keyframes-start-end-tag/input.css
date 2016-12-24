@@ -1,0 +1,36 @@
+body {
+	background-color: black;
+}
+
+p {
+	color: red;
+	animation: do-something-cool 1s infinite;
+}
+
+a {
+ 	/* critical */
+ 	text-decoration: none;
+}
+
+ul {
+	padding: 0;
+}
+
+/* critical:start */
+@keyframes do-something-cool {
+	0% {
+		padding: 0px;
+		opacity: 1;
+	}
+
+	50% {
+		padding: 20px;
+		opacity: 0;
+		/* critical:end */
+	}
+
+	100% {
+		padding: 0px;
+		opacity: 1;
+	}
+}

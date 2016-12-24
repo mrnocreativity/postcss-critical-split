@@ -218,14 +218,23 @@ function getAllCriticals(originalCss, criticalCss) {
 			currentLevel = null;
 			line.remove(); // remove tagging comment
 		} else if (line.type === 'comment' && isBlockTag(line.text, blockMarkers)) {
-			appendFullBlock(criticalCss, line);
-			line.remove(); // remove tagging comment
+			if (hasParentAtRule(line, 'keyframes')) {
+				console.log('blocktag detected in keyframes');
+				stats.criticals++;
+				temp = appendFullBlock(criticalCss, line);
+				removeMarkersInBlock(temp, blockMarkers, moduleMarkers);
+				console.log('remove done');
+			} else {
+				appendFullBlock(criticalCss, line);
+				line.remove(); // remove tagging comment
+			}
 		} else if (line.type === 'comment' && isStartTag(line.text, moduleMarkers)) {
 			criticalActive = true;
 			line.remove(); // remove tagging comment
 		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'keyframes')) { //keyframes shouldn't be split
 			stats.criticals++;
-			appendDeclaration(criticalCss, line);
+			temp = appendDeclaration(criticalCss, line);
+			removeMarkersInBlock(temp, blockMarkers, moduleMarkers);
 		} else if (criticalActive === true && (line.type === 'decl' && hasParentAtRule(line, 'keyframes') === true)) {
 			// ignore this rule...
 		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'font-face')){
@@ -325,17 +334,42 @@ function appendFullBlock(criticalCss, line) {
 
 function appendDeclaration(criticalCss, line) {
 	var parents = getParents(line),
-		currentLevel = prepareSelectors(criticalCss, parents);
+		currentLevel = prepareSelectors(criticalCss, parents),
+		rule = clone(line);
 
-	currentLevel.append(line);
+	// console.log(rule.type);
+
+	currentLevel.append(rule);
 	stats.appends++;
 	currentLevel.raws.semicolon = true;
+
+	return rule;
+}
+
+function removeCommentIfMarker(blockMarkers, moduleMarkers, line) {
+	if(line.type === 'comment' && (line.text === userOptions.endTag || isBlockTag(line.text, blockMarkers)) || isStartTag(line.text, moduleMarkers)) {
+		console.log('remove comment:', line.text);
+		line.remove();
+	}
+}
+
+function removeMarkersInBlock(line, blockMarkers, moduleMarkers) {
+	if (typeof line.walkComments === 'function') {
+		console.log('walking over comments');
+		line.walkComments(removeCommentIfMarker.bind(null, blockMarkers, moduleMarkers));
+	} else {
+		console.log('--- removing direct');
+		removeCommentIfMarker(blockMarkers, moduleMarkers, line);
+		console.log('---');
+	}
 }
 
 function appendEmptyRule(criticalCss, line) {
 	var rule = clone(line, true);
 
 	appendDeclaration(criticalCss, rule);
+
+	return rule;
 }
 
 function prepareSelectors(criticalCss, selectorLevels) {

@@ -1,0 +1,33 @@
+body {
+	background-color: black;
+}
+
+p {
+	color: red;
+}
+
+@media screen and (min-width: 400px) {
+	p {
+		display: inline-block;
+		border: red thin solid;
+	}
+
+	div {
+		float: left;
+	}
+
+	div::before {
+		display: table;
+	}
+}
+
+@media screen and (min-width: 500px) {
+	div {
+		float: left;
+	}
+}
+
+span {
+	display: inline-block;
+	color: #333;
+}

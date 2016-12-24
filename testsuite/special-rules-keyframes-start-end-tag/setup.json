@@ -1,0 +1,5 @@
+{
+	"name": "should split keyframes without breaking them when tagging anything inside with a start/end tag",
+	"input": "input.css",
+	"output": "output.css"
+}
