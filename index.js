@@ -160,6 +160,18 @@ function cleanUp(cssRoot) {
 	cssRoot.raws.semicolon = true;
 }
 
+function hasEndMarker(block) {
+	var result = false;
+
+	block.walkComments(function(line) {
+		if (line.text === userOptions.endTag) {
+			result = true;
+		}
+	});
+
+	return result;
+}
+
 function applyUserOptions(newOptions) {
 	var errorMessage ='',
 		result = true;
@@ -219,11 +231,15 @@ function getAllCriticals(originalCss, criticalCss) {
 			line.remove(); // remove tagging comment
 		} else if (line.type === 'comment' && isBlockTag(line.text, blockMarkers)) {
 			if (hasParentAtRule(line, 'keyframes')) {
-				console.log('blocktag detected in keyframes');
+				//console.log('blocktag detected in keyframes');
 				stats.criticals++;
-				temp = appendFullBlock(criticalCss, line);
+				//console.log('original', line.toString());
+				// console.log('-------------------------');
+				temp = appendFullBlock(criticalCss, line, 'keyframes');
+				// console.log('other temp line', temp.toString());
+				// console.log('-------------------------');
 				removeMarkersInBlock(temp, blockMarkers, moduleMarkers);
-				console.log('remove done');
+				// console.log('remove done');
 			} else {
 				appendFullBlock(criticalCss, line);
 				line.remove(); // remove tagging comment
@@ -234,7 +250,12 @@ function getAllCriticals(originalCss, criticalCss) {
 		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'keyframes')) { //keyframes shouldn't be split
 			stats.criticals++;
 			temp = appendDeclaration(criticalCss, line);
+			//console.log('temp line', temp);
 			removeMarkersInBlock(temp, blockMarkers, moduleMarkers);
+
+			if (hasEndMarker(line) === true) {
+				criticalActive = false;
+			}
 		} else if (criticalActive === true && (line.type === 'decl' && hasParentAtRule(line, 'keyframes') === true)) {
 			// ignore this rule...
 		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'font-face')){
@@ -292,22 +313,30 @@ function isStartTag(currentText, moduleMarkers) {
 	return isMarkedTag(currentText, userOptions.startTag, moduleMarkers);
 }
 
-function getBlockFromTriggerTag(line) {
+function getBlockFromTriggerTag(line, parentAtRule) {
 	var result = null;
 
-	stats.parentRequest++;
-	if (line.parent.type !== 'root') {
-		result = line.parent;
+	if (typeof parentAtRule === 'undefined') {
 		stats.parentRequest++;
+
+		if (line.parent.type !== 'root') {
+			result = line.parent;
+			stats.parentRequest++;
+		}
+	} else {
+		//console.log('parent at rule requested for this full block appender');
+		result = getParentAtRule(line, parentAtRule, true);
+		// i checked the results, looks ok
 	}
 
 	return result;
 }
 
-function appendFullBlock(criticalCss, line) {
+function appendFullBlock(criticalCss, line, parentAtRule) {
 	var currentLevel = null,
 		parents = null,
-		block =  getBlockFromTriggerTag(line);
+		block = getBlockFromTriggerTag(line, parentAtRule),
+		temp = null;
 
 	if (block !== null) {
 		parents = getParents(line);
@@ -319,17 +348,32 @@ function appendFullBlock(criticalCss, line) {
 		currentLevel = prepareSelectors(criticalCss, parents);
 
 		if (currentLevel.type === 'rule' || currentLevel.type === 'atrule') {
-			block.walk(function(currentLine) {
-				if (!(currentLine.type === 'comment' && line.text === currentLine.text)){
-					// we don't want to add the blockTag comment back; skip that
-					currentLevel.append(currentLine);
-					stats.appends++;
-					currentLine.remove();
-					currentLevel.raws.semicolon = true;
+			if (block.name === 'keyframes') {
+				if (areTheSame(block, currentLevel)) {
+					temp = currentLevel;
+					currentLevel = currentLevel.parent;
+					temp.remove();
 				}
-			});
+				currentLevel.append(clone(block));
+			} else {
+				block.walk(function(currentLine) {
+					var level = null;
+
+					// we don't want to add the blockTag comment back; skip that
+					// we don't want to loop over content that is inside a keyframes rule, it has been added already
+
+					if (!(currentLine.type === 'comment' && line.text === currentLine.text)){
+						currentLevel.append(currentLine);
+						stats.appends++;
+						currentLine.remove();
+						currentLevel.raws.semicolon = true;
+					}
+				});
+			}
 		}
 	}
+
+	return currentLevel;
 }
 
 function appendDeclaration(criticalCss, line) {
@@ -347,20 +391,22 @@ function appendDeclaration(criticalCss, line) {
 }
 
 function removeCommentIfMarker(blockMarkers, moduleMarkers, line) {
-	if(line.type === 'comment' && (line.text === userOptions.endTag || isBlockTag(line.text, blockMarkers)) || isStartTag(line.text, moduleMarkers)) {
-		console.log('remove comment:', line.text);
-		line.remove();
+	if (line !== null) {
+		if(line.type === 'comment' && (line.text === userOptions.endTag || isBlockTag(line.text, blockMarkers)) || isStartTag(line.text, moduleMarkers)) {
+			// console.log('remove comment:', line.text);
+			line.remove();
+		}
 	}
 }
 
 function removeMarkersInBlock(line, blockMarkers, moduleMarkers) {
-	if (typeof line.walkComments === 'function') {
-		console.log('walking over comments');
+	if (line !== null && typeof line.walkComments === 'function') {
+		//console.log('walking over comments');
 		line.walkComments(removeCommentIfMarker.bind(null, blockMarkers, moduleMarkers));
 	} else {
-		console.log('--- removing direct');
+		// console.log('--- removing direct');
 		removeCommentIfMarker(blockMarkers, moduleMarkers, line);
-		console.log('---');
+		// console.log('---');
 	}
 }
 
@@ -399,13 +445,14 @@ function createSelectorLevels(criticalCss, selectorLevels) {
 		if (typeof currentLevel.last !== 'undefined' && areTheSame(temp, currentLevel.last)) {
 			currentLevel = currentLevel.last;
 		} else {
-			currentLevel.append(temp);
-			currentLevel = temp;
-			currentLevel.raws.semicolon = true;
+			if (currentLevel.name !== 'keyframes') {
+				currentLevel.append(temp);
+				currentLevel = temp;
+				currentLevel.raws.semicolon = true;
+			}
+
 			temp = null;
 		}
-
-
 	}
 
 	return currentLevel;
@@ -422,6 +469,7 @@ function findSelector(criticalCss, selectorLevels) {
 	for (i = 0; i < selectorLevels.length; i++) {
 		stats.loops++;
 		temp = selectorLevels[i];
+
 		currentLevel = currentLevel.last;
 
 		if (typeof currentLevel === 'undefined' || areTheSame(temp, currentLevel) === false) {
@@ -453,19 +501,28 @@ function areTheSame(a, b) {
 	return result;
 }
 
-function hasParentAtRule(line, name) {
-	var result = false,
-		parents = getParents(line),
-		i = 0,
-		currentParent = null;
+function getParentAtRule(line, name) {
+	var result = null,
+		currentParent = line.parent;
 
-	for (i; i < parents.length; i++) {
-		stats.loops++;
-		currentParent = parents[i];
-
+	while (result === null && typeof currentParent !== 'undefined' && currentParent !== null) {
 		if (currentParent.type === 'atrule' && currentParent.name === name) {
-			result = true;
+			result = currentParent;
+		} else {
+			stats.parentRequest++;
+			currentParent = currentParent.parent;
 		}
+	}
+
+	return result;
+}
+
+function hasParentAtRule(line, name) {
+	var result = true,
+		parent = getParentAtRule(line, name);
+
+	if (parent === null) {
+		result = false;
 	}
 
 	return result;

@@ -14,7 +14,7 @@ a {
 	}
 
 	100% {
-		padding: 0px;
-		opacity: 1;
+		padding: 5px;
+		opacity: .8;
 	}
 }
