@@ -1,6 +1,6 @@
 {
   "name": "postcss-critical-split",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "repository": "https://github.com/menocreativity/postcss-critical-split",
   "description": "A PostCSS plugin that takes existing CSS files and splits out the annotated critical styles into a seperate file.",
   "scripts": {
@@ -25,6 +25,8 @@
   },
   "jest": {
     "collectCoverage": true,
-    "collectCoverageFrom": ["index.js"]
+    "collectCoverageFrom": [
+      "index.js"
+    ]
   }
 }
