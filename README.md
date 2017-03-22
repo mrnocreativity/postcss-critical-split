@@ -34,6 +34,15 @@ For example: during development you could `<link>` the critical-CSS file, while 
 ```bash
 npm install --save-dev postcss-critical-split
 ```
+
+## Test
+To run tests:
+```bash
+npm test
+```
+
+If you want to contribute to the project and write additional tests, look into the testsuite folder. You'll find a folder per test with input/output results, splitSettings and optional process tasks where you can write a custom test scenario.
+
 ## Usage
 
 ```javascript
