@@ -104,15 +104,17 @@ function clean(root) {
 function createScenario(test) {
 	var inputBytes = null,
 		input = null,
+		inputFile = './' + path.join(test.directory, test.setup.input),
 		outputBytes = null,
 		output = null,
+		outputFile = './' + path.join(test.directory, test.setup.output),
 		testResult = null,
 		customProcess = null;
 
-	inputBytes = fs.readFileSync('./' + path.join(test.directory, test.setup.input)),
-	input = postcss.parse(inputBytes).toResult(),
-	outputBytes = fs.readFileSync('./' + path.join(test.directory, test.setup.output)),
-	output = postcss.parse(outputBytes).toResult();
+	inputBytes = fs.readFileSync(inputFile),
+	input = postcss.parse(inputBytes, {'from': inputFile}).toResult(),
+	outputBytes = fs.readFileSync(outputFile),
+	output = postcss.parse(outputBytes, {'from': outputFile}).toResult();
 
 	if (typeof test.setup.process === 'string') {
 		customProcess = require('./' + path.join(test.directory, test.setup.process));

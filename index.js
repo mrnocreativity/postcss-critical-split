@@ -35,7 +35,7 @@ function CriticalSplit(newOptions) {
 			if (userOptions.debug === true) {
 				processStats();
 			}
-		};
+		}
 
 		return result;
 	};
@@ -231,15 +231,9 @@ function getAllCriticals(originalCss, criticalCss) {
 			line.remove(); // remove tagging comment
 		} else if (line.type === 'comment' && isBlockTag(line.text, blockMarkers)) {
 			if (hasParentAtRule(line, 'keyframes')) {
-				//console.log('blocktag detected in keyframes');
 				stats.criticals++;
-				//console.log('original', line.toString());
-				// console.log('-------------------------');
 				temp = appendFullBlock(criticalCss, line, 'keyframes');
-				// console.log('other temp line', temp.toString());
-				// console.log('-------------------------');
 				removeMarkersInBlock(temp, blockMarkers, moduleMarkers);
-				// console.log('remove done');
 			} else {
 				appendFullBlock(criticalCss, line);
 				line.remove(); // remove tagging comment
@@ -250,7 +244,6 @@ function getAllCriticals(originalCss, criticalCss) {
 		} else if (criticalActive === true && (line.type === 'atrule' && line.name === 'keyframes')) { //keyframes shouldn't be split
 			stats.criticals++;
 			temp = appendDeclaration(criticalCss, line);
-			//console.log('temp line', temp);
 			removeMarkersInBlock(temp, blockMarkers, moduleMarkers);
 
 			if (hasEndMarker(line) === true) {
@@ -324,9 +317,7 @@ function getBlockFromTriggerTag(line, parentAtRule) {
 			stats.parentRequest++;
 		}
 	} else {
-		//console.log('parent at rule requested for this full block appender');
 		result = getParentAtRule(line, parentAtRule, true);
-		// i checked the results, looks ok
 	}
 
 	return result;
@@ -363,7 +354,7 @@ function appendFullBlock(criticalCss, line, parentAtRule) {
 					// we don't want to loop over content that is inside a keyframes rule, it has been added already
 
 					if (!(currentLine.type === 'comment' && line.text === currentLine.text)){
-						currentLevel.append(currentLine);
+						currentLevel.append(currentLine.clone());
 						stats.appends++;
 						currentLine.remove();
 						currentLevel.raws.semicolon = true;
@@ -381,8 +372,6 @@ function appendDeclaration(criticalCss, line) {
 		currentLevel = prepareSelectors(criticalCss, parents),
 		rule = clone(line);
 
-	// console.log(rule.type);
-
 	currentLevel.append(rule);
 	stats.appends++;
 	currentLevel.raws.semicolon = true;
@@ -393,7 +382,6 @@ function appendDeclaration(criticalCss, line) {
 function removeCommentIfMarker(blockMarkers, moduleMarkers, line) {
 	if (line !== null) {
 		if(line.type === 'comment' && (line.text === userOptions.endTag || isBlockTag(line.text, blockMarkers)) || isStartTag(line.text, moduleMarkers)) {
-			// console.log('remove comment:', line.text);
 			line.remove();
 		}
 	}
@@ -401,12 +389,9 @@ function removeCommentIfMarker(blockMarkers, moduleMarkers, line) {
 
 function removeMarkersInBlock(line, blockMarkers, moduleMarkers) {
 	if (line !== null && typeof line.walkComments === 'function') {
-		//console.log('walking over comments');
 		line.walkComments(removeCommentIfMarker.bind(null, blockMarkers, moduleMarkers));
 	} else {
-		// console.log('--- removing direct');
 		removeCommentIfMarker(blockMarkers, moduleMarkers, line);
-		// console.log('---');
 	}
 }
 
@@ -548,7 +533,6 @@ function getParents(line) {
 	parents = parents.reverse();
 
 	return parents;
-
 }
 
 function clone(originalRule, makeEmpty) {
