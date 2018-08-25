@@ -1,8 +1,16 @@
+table {
+	display: block;
+	width: 100%;
+}
+
 /* critical:start */
 .logobar {
   width: 80px;
   height: 100%;
   z-index: 999;
   position: fixed; }
-
 /* critical:end */
+
+.strong {
+	font-weight: bold;
+}
