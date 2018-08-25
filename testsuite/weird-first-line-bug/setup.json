@@ -1,0 +1,5 @@
+{
+	"name": "should not accitentally remove the first line",
+	"input": "input.css",
+	"output": "output.css"
+}
