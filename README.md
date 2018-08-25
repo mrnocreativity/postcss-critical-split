@@ -209,18 +209,18 @@ header{
 }
 ```
 
-### options.startTag & options.stopTag
+### options.startTag & options.endTag
 *startTag defaults to `critical:start`*
-*stopTag defaults to `critical:end`*
+*endTag defaults to `critical:end`*
 
-These are the comment texts that are matched throughout the original CSS file. If the startTag is encountered, every rule, declaration, atRule is carried into the critical-CSS until the stopTag is encountered. All the rules that appy will be removed from the original CSS.
+These are the comment texts that are matched throughout the original CSS file. If the startTag is encountered, every rule, declaration, atRule is carried into the critical-CSS until the endTag is encountered. All the rules that appy will be removed from the original CSS.
 
 ```javascript
 /* gulpfile */
 gulp.src(['**/*.css','!**/*-critical.css'])
 	.pipe(postcss(require('postcss-critical-split')({
 		'startTag':'grab:open',
-		'stopTag':'grab:close',
+		'endTag':'grab:close',
 	}));
 ```
 ```css
