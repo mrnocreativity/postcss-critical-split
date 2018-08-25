@@ -1,7 +1,6 @@
 var postcss = require('postcss'),
 	fs = require('fs');
 
-
 module.exports = function(criticalSplit, input, output, opts) {
 	spyOn(console, 'warn').and.callFake(function(message){
 		// do nothing
@@ -12,7 +11,7 @@ module.exports = function(criticalSplit, input, output, opts) {
 	});
 
 	return postcss([criticalSplit(opts)]).process(input)
-		.then( function(result) {
+		.then(function(result) {
 			expect(console.warn).toHaveBeenCalledTimes(1);
 		});
 }

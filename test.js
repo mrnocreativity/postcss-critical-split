@@ -6,7 +6,10 @@ var postcss = require('postcss'),
 	directories = null,
 	fs = require('fs'),
 	path = require('path'),
-	tests = null;
+	tests = null,
+	singleRequest = process.argv[process.argv.length - 1];
+
+if (singleRequest === 'test.js') singleRequest = null;
 
 function getDirectories(srcPath) {
 	return fs.readdirSync(srcPath).filter(function(file) {
@@ -14,7 +17,7 @@ function getDirectories(srcPath) {
 	});
 }
 
-function loadTests() {
+function loadAllTests() {
 	var testDirectory = './testsuite',
 		directories = getDirectories(testDirectory),
 		i = 0,
@@ -40,6 +43,34 @@ function loadTests() {
 	}
 }
 
+function getSingleTest(testName) {
+	if (!testName) return null;
+
+	var testDirectory = './testsuite',
+		currentPath = path.join(testDirectory, testName),
+		testIsValid = true,
+		theTest = {
+			'directory': currentPath
+		};
+
+	try {
+		theTest.setup = require('./' + path.join(currentPath, 'setup'));
+	} catch(e) {
+		//this file is required
+		testIsValid = false;
+	}
+
+	try {
+		theTest.split = require('./' + path.join(currentPath, 'split-settings'));
+	} catch(ex) {
+		// this file is optional
+	}
+
+	if (!testIsValid) return null;
+
+	return theTest;
+}
+
 function runTests() {
 	var i = 0,
 		currentTest = 0;
@@ -51,8 +82,11 @@ function runTests() {
 }
 
 function run(input, output, opts) {
-	return postcss([criticalSplit(opts)]).process(input)
-		.then( function(result) {
+	return postcss([criticalSplit(opts)]).process(input, {
+			'from': 'input.css',
+			'to': 'output.css'
+		})
+		.then(function(result) {
 			var resultCss = clean(result.root),
 				outputCss = clean(output.root);
 
@@ -127,5 +161,13 @@ function createScenario(test) {
 	}
 }
 
-loadTests();
+var singleTest = getSingleTest(singleRequest);
+
+if (singleTest){
+	tests = [];
+	tests.push(singleTest);
+} else {
+	loadAllTests();
+}
+
 runTests();

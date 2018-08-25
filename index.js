@@ -116,6 +116,7 @@ function performTransform(inputCss, result) {
 	cleanUp(criticalCss);
 
 	if (userOptions.save === true) {
+		//console.log('warning');
 		console.warn('postcss-critical-split: The save feature has been deprecated and should be avoided. This feature will be removed in v3.0.0. Read more about it here: https://github.com/mrnocreativity/postcss-critical-split/issues/3');
 
 		absolutePath = originalCss.source.input.file,
@@ -287,11 +288,23 @@ function getModuleMarkers(startTag) {
 }
 
 function isMarkedTag(currentText, marker, markers) {
-	var result = false;
+	var result = false,
+		typedMarker = marker,
+		typedMarkers = markers;
 
-	if (currentText === marker) {
+	if (currentText.indexOf('! ') === 0) {
+		typedMarker = '! ' + marker;
+
+		if (typedMarkers !== null) {
+			typedMarkers = markers.map(function(thisMarker) {
+				return '! ' + thisMarker;
+			});
+		}
+	}
+
+	if (currentText === typedMarker) {
 		result = true;
-	} else if (markers !== null && markers.indexOf(currentText) != -1) {
+	} else if (typedMarkers !== null && typedMarkers.indexOf(currentText) != -1) {
 		result = true;
 	}
 

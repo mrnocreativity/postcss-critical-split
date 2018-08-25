@@ -1,0 +1,5 @@
+{
+	"name": "should also support the use of important comments",
+	"input": "input.css",
+	"output": "output.css"
+}

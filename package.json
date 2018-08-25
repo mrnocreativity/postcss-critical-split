@@ -24,6 +24,7 @@
     "jest": "^18.0.0"
   },
   "jest": {
+    "bail": false,
     "collectCoverage": true,
     "collectCoverageFrom": [
       "index.js"
