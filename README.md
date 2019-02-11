@@ -366,14 +366,14 @@ footer{
 ### options.separator
 * defaults to `:`*
 
-This is the seperator used in your critical start-tag to tag a module.
+This is the separator used in your critical start-tag to tag a module.
 
 ```javascript
 /* gulpfile */
 gulp.src(['**/*.css','!**/*-critical.css'])
 	.pipe(postcss(require('postcss-critical-split')({
 		'modules': ['header', 'top-photo'],
-		'seperator': '--'
+		'separator': '--'
 	}));
 ```
 
