@@ -18,7 +18,9 @@ p{
 
 @media screen and (min-width: 500px) {
 	p {
+		/*! critical:start:header */
 		float: left;
+		/*! critical:end */
 		text-decoration: underline;
 	}
 }
