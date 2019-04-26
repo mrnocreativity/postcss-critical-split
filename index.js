@@ -226,7 +226,7 @@ function getAllCriticals(originalCss, criticalCss) {
 		line.parent.raws.semicolon = true;
 		stats.parentRequest++;
 
-		if (line.type === 'comment' && line.text === userOptions.endTag) {
+		if (line.type === 'comment' && (line.text === userOptions.endTag || line.text === '! ' + userOptions.endTag)) {
 			criticalActive = false
 			currentLevel = null;
 			line.remove(); // remove tagging comment
