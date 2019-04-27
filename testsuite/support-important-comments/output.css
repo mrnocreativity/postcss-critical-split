@@ -1,8 +1,24 @@
+strong {
+	font-weight: bold;
+}
+
+p{
+	color: #333;
+}
+
 @media screen and (min-width: 300px) {
 	strong {
 		color: #f00;
 	}
+}
 
+@media screen and (min-width: 500px) {
+	p {
+		float: left;
+	}
+}
+
+@media screen and (min-width: 300px) {
 	li {
 		display: block;
 		float: left;

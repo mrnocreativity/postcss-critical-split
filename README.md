@@ -163,6 +163,10 @@ a[rel=external]:before{
 
 ```
 
+### Important comments
+This plugin supports important comments (e.g. `/*! critical */`). Any of the
+examples above should work using this comment style.
+
 ## Options
 The plugin accepts an object with additional options.
 

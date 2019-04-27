@@ -1,3 +1,4 @@
+/*! critical:start */
 strong {
 	font-weight: bold;
 }
@@ -5,6 +6,7 @@ strong {
 p{
 	color: #333;
 }
+/*! critical:end */
 
 @media screen and (min-width: 300px) {
 	strong {
@@ -16,7 +18,9 @@ p{
 
 @media screen and (min-width: 500px) {
 	p {
+		/*! critical:start:header */
 		float: left;
+		/*! critical:end */
 		text-decoration: underline;
 	}
 }
