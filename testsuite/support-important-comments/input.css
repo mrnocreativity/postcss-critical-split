@@ -20,7 +20,7 @@ p{
 	p {
 		/*! critical:start:header */
 		float: left;
-		/*! critical:end */
+		/* critical:end */
 		text-decoration: underline;
 	}
 }

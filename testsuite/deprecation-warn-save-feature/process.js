@@ -10,8 +10,10 @@ module.exports = function(criticalSplit, input, output, opts) {
 		return true;
 	});
 
+	expect(console.warn).not.toHaveBeenCalled();
+
 	return postcss([criticalSplit(opts)]).process(input)
 		.then(function(result) {
-			expect(console.warn).toHaveBeenCalledTimes(1);
+			expect(console.warn).toHaveBeenCalled();
 		});
 }
