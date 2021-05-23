@@ -15,9 +15,6 @@
   ],
   "author": "Ronny Welter",
   "license": "MIT",
-  "dependencies": {
-    "merge": "^1.2.0"
-  },
   "devDependencies": {
     "clear": "0.0.1",
     "jest": "^18.0.0",

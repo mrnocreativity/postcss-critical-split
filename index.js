@@ -7,7 +7,6 @@ var output_types = {
 	},
 	path = require('path'),
 	fs = require('fs'),
-	merge = require('merge'),
 	userOptions = null,
 	criticalActive = false,
 	defaults = {
@@ -174,8 +173,7 @@ function applyUserOptions(newOptions) {
 	var errorMessage ='',
 		result = true;
 
-	userOptions = merge(true, defaults);
-	merge(userOptions, newOptions);
+	userOptions = Object.assign({}, defaults, newOptions);
 
 	if (userOptions.startTag === userOptions.endTag) {
 		errorMessage += '\n\n';
