@@ -173,7 +173,7 @@ function applyUserOptions(newOptions) {
 	var errorMessage ='',
 		result = true;
 
-	userOptions = Object.assign({}, defaults, newOptions);
+	userOptions = { ...defaults, ...newOptions };
 
 	if (userOptions.startTag === userOptions.endTag) {
 		errorMessage += '\n\n';

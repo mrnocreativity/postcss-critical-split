@@ -17,7 +17,7 @@
   "license": "MIT",
   "devDependencies": {
     "clear": "0.1.0",
-    "jest": "^18.0.0",
+    "jest": "^26.6.3",
     "postcss": "^8.3.0"
   },
   "engines": {
@@ -27,6 +27,7 @@
     "postcss": "^8.3.0"
   },
   "jest": {
+    "testEnvironment": "node",
     "bail": false,
     "collectCoverage": true,
     "collectCoverageFrom": [
