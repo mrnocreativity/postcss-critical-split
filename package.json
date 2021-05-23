@@ -16,12 +16,18 @@
   "author": "Ronny Welter",
   "license": "MIT",
   "dependencies": {
-    "merge": "^1.2.0",
-    "postcss": "^6.0.1"
+    "merge": "^1.2.0"
   },
   "devDependencies": {
     "clear": "0.0.1",
-    "jest": "^18.0.0"
+    "jest": "^18.0.0",
+    "postcss": "^8.3.0"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "peerDependencies": {
+    "postcss": "^8.3.0"
   },
   "jest": {
     "bail": false,
