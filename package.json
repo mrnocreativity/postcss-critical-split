@@ -16,7 +16,7 @@
   "author": "Ronny Welter",
   "license": "MIT",
   "devDependencies": {
-    "clear": "0.0.1",
+    "clear": "0.1.0",
     "jest": "^18.0.0",
     "postcss": "^8.3.0"
   },
