@@ -16,7 +16,7 @@
   "author": "Ronny Welter",
   "license": "MIT",
   "dependencies": {
-    "merge": "^1.2.0",
+    "merge": "^2.1.1",
     "postcss": "^6.0.1"
   },
   "devDependencies": {
