@@ -6,7 +6,7 @@ module.exports = function(criticalSplit, input, output, opts) {
 		// do nothing
 	});
 
-	return postcss([criticalSplit(opts)]).process(input)
+	return postcss([criticalSplit(opts)]).process(input, {from: 'input.css'})
 		.then( function(result) {
 			expect(console.error).toHaveBeenCalledTimes(1);
 		});

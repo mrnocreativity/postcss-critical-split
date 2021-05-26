@@ -5,8 +5,6 @@ var output_types = {
 		'CRITICAL_CSS': 'critical',
 		'REST_CSS': 'rest'
 	},
-	path = require('path'),
-	fs = require('fs'),
 	userOptions = null,
 	criticalActive = false,
 	defaults = {
@@ -15,7 +13,6 @@ var output_types = {
 		'blockTag': 'critical',
 		'suffix': '-critical',
 		'output': output_types.CRITICAL_CSS,
-		'save': false,
 		'modules': null,
 		'separator': ':',
 		'debug': false
@@ -100,29 +97,12 @@ function processStats() {
 
 function performTransform(inputCss, result, postcss) {
 	var originalCss = clone(inputCss),
-		criticalCss = postcss.root(),
-		absolutePath = null,
-		directoryPath = null,
-		nonCriticalFilename = null,
-		criticalFilename = null;
+		criticalCss = postcss.root();
 
 	getAllCriticals(originalCss, criticalCss);
 
 	cleanUp(originalCss);
 	cleanUp(criticalCss);
-
-	if (userOptions.save === true) {
-		//console.log('warning');
-		console.warn('postcss-critical-split: The save feature has been deprecated and should be avoided. This feature will be removed in v3.0.0. Read more about it here: https://github.com/mrnocreativity/postcss-critical-split/issues/3');
-
-		absolutePath = originalCss.source.input.file,
-		directoryPath = path.dirname(absolutePath),
-		nonCriticalFilename = path.basename(absolutePath),
-		criticalFilename = createCriticalFilename(nonCriticalFilename);
-
-		saveCssFile(path.join(directoryPath, nonCriticalFilename), originalCss);
-		saveCssFile(path.join(directoryPath, criticalFilename), criticalCss);
-	}
 
 	switch(userOptions.output) {
 		case output_types.INPUT_CSS:
@@ -134,12 +114,6 @@ function performTransform(inputCss, result, postcss) {
 		case output_types.REST_CSS:
 			result.root = originalCss;
 			break;
-	}
-}
-
-function saveCssFile(filepath, cssRoot) {
-	if (cssRoot.nodes.length > 0) {
-		fs.writeFileSync(filepath, cssRoot.toResult());
 	}
 }
 
@@ -193,17 +167,6 @@ function applyUserOptions(newOptions) {
 	} else if (userOptions.modules instanceof Array === false) {
 		userOptions.modules = defaults.modules;
 	}
-
-	return result;
-}
-
-function createCriticalFilename(filename) {
-	var position = filename.lastIndexOf('.css'),
-		result = '';
-
-	result = filename.substring(0, position);
-	result += userOptions.suffix;
-	result += '.css';
 
 	return result;
 }

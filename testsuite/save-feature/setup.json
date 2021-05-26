@@ -1,6 +1,0 @@
-{
-	"name": "should save files to disk when the save option is enabled",
-	"input": "input.css",
-	"output": "output.css",
-	"process": "process.js"
-}
