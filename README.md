@@ -32,7 +32,7 @@ For example: during development you could `<link>` the critical-CSS file, while 
 ## Install
 
 ```bash
-npm install --save-dev postcss-critical-split
+npm install --save-dev postcss postcss-critical-split
 ```
 
 ## Test

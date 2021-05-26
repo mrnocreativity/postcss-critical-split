@@ -7,8 +7,6 @@ var output_types = {
 	},
 	path = require('path'),
 	fs = require('fs'),
-	merge = require('merge'),
-	postcss = require('postcss'),
 	userOptions = null,
 	criticalActive = false,
 	defaults = {
@@ -24,13 +22,11 @@ var output_types = {
 	},
 	stats = null;
 
-function CriticalSplit(newOptions) {
-	newOptions = newOptions || {};
-
-	return function(originalCss, result) {
+function CriticalSplit(newOptions = {}) {
+	return function(originalCss, { result, postcss }) {
 		if (applyUserOptions(newOptions)) {
 			setupStats();
-			performTransform(originalCss, result);
+			performTransform(originalCss, result, postcss);
 
 			if (userOptions.debug === true) {
 				processStats();
@@ -102,7 +98,7 @@ function processStats() {
 	console.log(message);
 }
 
-function performTransform(inputCss, result) {
+function performTransform(inputCss, result, postcss) {
 	var originalCss = clone(inputCss),
 		criticalCss = postcss.root(),
 		absolutePath = null,
@@ -177,8 +173,7 @@ function applyUserOptions(newOptions) {
 	var errorMessage ='',
 		result = true;
 
-	userOptions = merge(true, defaults);
-	merge(userOptions, newOptions);
+	userOptions = { ...defaults, ...newOptions };
 
 	if (userOptions.startTag === userOptions.endTag) {
 		errorMessage += '\n\n';
@@ -566,6 +561,11 @@ function clone(originalRule, makeEmpty) {
 	return newRule;
 }
 
-module.exports = postcss.plugin('postcss-critical-split', CriticalSplit);
+module.exports = (opts = {}) => {
+	return {
+		postcssPlugin: 'postcss-critical-split',
+		OnceExit: CriticalSplit( opts ),
+	}
+};
+module.exports.postcss = true;
 module.exports.output_types = output_types;
-
